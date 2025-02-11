@@ -1,0 +1,62 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "channels": {
+      ".indexOn": ["category"],
+      "$channelId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "category": {
+          ".validate": "newData.isString()"
+        },
+        "description": {
+          ".validate": "newData.isString()"
+        },
+        "members": {
+          ".validate": "newData.isNumber()"
+        },
+        "name": {
+          ".validate": "newData.isString()"
+        },
+        "lastMessage": {
+          ".validate": "!newData.exists() || newData.hasChildren(['content', 'createdAt', 'userDisplayName'])",
+          "content": {
+            ".validate": "newData.isString()"
+          },
+          "createdAt": {
+            ".validate": "newData.isNumber() && newData.val() <= now"
+          },
+          "userDisplayName": {
+            ".validate": "newData.isString()"
+          }
+        }
+      }
+    },
+    "messages": {
+      "$channelId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".indexOn": ["createdAt"],
+        "$messageId": {
+          ".validate": "newData.hasChildren(['userId', 'content', 'userDisplayName', 'createdAt'])",
+          "userId": {
+            ".validate": "newData.val() === auth.uid"
+          },
+          "content": {
+            ".validate": "newData.isString() && newData.val().length <= 1000"
+          },
+          "userDisplayName": {
+            ".validate": "newData.isString()"
+          },
+          "createdAt": {
+            ".validate": "newData.isNumber() && newData.val() <= now"
+          },
+          "userPhotoURL": {
+            ".validate": "!newData.exists() || newData.isString()"
+          }
+        }
+      }
+    }
+  }
+}

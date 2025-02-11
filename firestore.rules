@@ -1,0 +1,215 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isUser(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    function isOwner() {
+      return hasRole('owner');
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    function isValidTicketStatus() {
+      let validStatuses = ['open', 'in_progress', 'resolved', 'closed', 'cancelled'];
+      return request.resource.data.status in validStatuses;
+    }
+
+    function isValidTicketCategory() {
+      let validCategories = ['technical', 'billing', 'account', 'feature', 'bug', 'other'];
+      return request.resource.data.category in validCategories;
+    }
+
+    function hasRequiredTicketFields() {
+      let requiredFields = [
+        'ticketNumber',
+        'userId',
+        'category',
+        'subject',
+        'message',
+        'status',
+        'createdAt',
+        'updatedAt',
+        'email',
+        'username'
+      ];
+      return request.resource.data.keys().hasAll(requiredFields);
+    }
+
+    function canUpdateTicketStatus() {
+      let isStatusUpdate = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt', 'resolvedAt']);
+      let isOwnerOfTicket = resource.data.userId == request.auth.uid;
+      return isStatusUpdate && (isOwnerOfTicket || isAdmin() || isOwner());
+    }
+
+    function canAddReply() {
+      let isReplyUpdate = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['replies', 'updatedAt', 'unreadByUser', 'unreadBySupport']);
+      let isOwnerOfTicket = resource.data.userId == request.auth.uid;
+      return isReplyUpdate && (isOwnerOfTicket || isAdmin() || isOwner());
+    }
+
+    // Tool Usage Rules
+    match /user_tool_usage/{userId} {
+      // Users can only read and write their own usage data
+      allow read, write: if isUser(userId);
+      
+      // Admins and owners can read all usage data
+      allow read: if isAdmin() || isOwner();
+    }
+
+    // Existing rules...
+    match /tool_usage/{usageId} {
+      // Allow users to read their own usage data
+      allow read: if isAuthenticated() && 
+        request.auth.uid == resource.data.userId;
+      
+      // Allow users to create usage entries for themselves
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.keys().hasAll(['userId', 'toolId', 'toolName', 'timestamp', 'weekStartDate']) &&
+        request.resource.data.timestamp is timestamp &&
+        request.resource.data.weekStartDate is timestamp;
+      
+      // No updates or deletes allowed
+      allow update, delete: if false;
+    }
+
+    // Support tickets rules
+    match /support_tickets/{ticketId} {
+      // Create ticket
+      allow create: if 
+        isAuthenticated() &&
+        hasRequiredTicketFields() &&
+        isValidTicketStatus() &&
+        isValidTicketCategory() &&
+        request.resource.data.userId == request.auth.uid;
+
+      // Read ticket
+      allow read: if 
+        isAuthenticated() &&
+        (
+          resource.data.userId == request.auth.uid || 
+          isAdmin() || 
+          isOwner()
+        );
+
+      // Update ticket
+      allow update: if 
+        isAuthenticated() &&
+        (
+          canUpdateTicketStatus() ||
+          canAddReply() ||
+          isAdmin() ||
+          isOwner()
+        );
+
+      // Delete ticket (only admins and owners)
+      allow delete: if isAdmin() || isOwner();
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isUser(userId);
+      allow update: if isUser(userId) || isAdmin() || isOwner();
+      allow delete: if isAdmin() || isOwner();
+    }
+
+    // Schools
+    match /schools/{schoolId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isOwner();
+    }
+
+    // Active sessions
+    match /sessions/{sessionId} {
+      allow read: if isAuthenticated() && 
+        resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && 
+        resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && 
+        resource.data.userId == request.auth.uid;
+    }
+
+    // Tools
+    match /tools/{toolId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isOwner();
+    }
+
+    // Analytics
+    match /analytics_tool_usage/{docId} {
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin() || isOwner();
+    }
+
+    match /analytics_feature_interactions/{docId} {
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin() || isOwner();
+    }
+
+    match /analytics_time_spent/{docId} {
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin() || isOwner();
+    }
+
+    match /analytics_errors/{docId} {
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin() || isOwner();
+    }
+
+    match /analytics_searches/{docId} {
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin() || isOwner();
+    }
+
+    match /analytics_daily_stats/{docId} {
+      allow read: if isAdmin() || isOwner();
+      allow write: if false; // Only written by Cloud Functions
+    }
+
+    // Email notifications
+    match /emailNotifications/{notificationId} {
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      allow read: if isAuthenticated() && 
+        resource.data.userId == request.auth.uid;
+      allow update: if false; // Only updated by Cloud Functions
+    }
+
+    // Chat channels
+    match /channels/{channelId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdmin() || isOwner();
+    }
+
+    // Chat messages
+    match /messages/{channelId}/messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && 
+        resource.data.userId == request.auth.uid;
+    }
+  }
+}
