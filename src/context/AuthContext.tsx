@@ -76,6 +76,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const db = getFirestore();
+
+  const checkTrialStatus = async (profile: UserProfile) => {
+    if (!profile.isTrialActive || !profile.trialEndDate) {
+      return profile;
+    }
+
+    const now = new Date();
+    const trialEnd = profile.trialEndDate instanceof Date 
+      ? profile.trialEndDate 
+      : profile.trialEndDate.toDate();
+
+    if (now > trialEnd) {
+      console.log('Trial has expired, updating profile...');
+      const updates = {
+        plan: 'free',
+        isTrialActive: false,
+        hadPreviousTrial: true,
+        trialEndDate: null,
+        trialStartDate: null
+      };
+
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+        await updateDoc(userRef, updates);
+      }
+
+      return {
+        ...profile,
+        ...updates
+      };
+    }
+
+    return profile;
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -87,17 +122,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           
           if (profileDoc.exists()) {
             const data = profileDoc.data();
-            // Convert Firestore Timestamps to Dates and ensure email is set
-            const profile = {
+            let profile = {
               ...data,
-              email: user.email || data.email || '', // Prioritize auth email
+              email: user.email || data.email || '',
               startDate: data.startDate?.toDate() || new Date(),
               trialStartDate: data.trialStartDate?.toDate() || null,
               trialEndDate: data.trialEndDate?.toDate() || null,
               plan: data.plan || 'free'
             } as UserProfile;
+
+            profile = await checkTrialStatus(profile);
             
-            // Update Firestore if email is missing
             if (!data.email && user.email) {
               await updateDoc(userRef, { email: user.email });
             }
@@ -235,13 +270,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user.email) throw new Error('User email is required');
 
     try {
-      // Create the credential with the current email and password
       const credential = EmailAuthProvider.credential(user.email, currentPassword);
 
-      // Reauthenticate
       await reauthenticateWithCredential(user, credential);
 
-      // If reauthentication succeeds, update the password
       await updatePassword(user, newPassword);
 
       return {
@@ -251,7 +283,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error: any) {
       console.error('Error updating password:', error);
       
-      // Handle specific Firebase error codes
       switch (error.code) {
         case 'auth/wrong-password':
         case 'auth/invalid-credential':
@@ -301,6 +332,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const startTrial = async () => {
     if (!user) throw new Error('No user logged in');
+    
+    const userRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userRef);
+    const userData = userDoc.data();
+
+    if (userData?.hadPreviousTrial) {
+      throw new Error('You have already used your free trial');
+    }
 
     const trialStartDate = new Date();
     const trialEndDate = new Date();
@@ -311,7 +350,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         plan: 'plus',
         isTrialActive: true,
         trialStartDate,
-        trialEndDate
+        trialEndDate,
+        hadPreviousTrial: false
       });
     } catch (error) {
       console.error('Error starting trial:', error);
