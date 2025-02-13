@@ -18,22 +18,21 @@ export function ToolModal({ isOpen, onClose, tool, onGenerate }: ToolModalProps)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+    
     try {
       onGenerate(null);
-  
+      
       const prompt = `Tool: ${tool.name}\n\n${Object.entries(formData)
         .map(([key, value]) => `${key}: ${value}`)
         .join('\n')}`;
-  
-      const fullResponse = await deepseekService.generateResponse(prompt); // Await the full response
-      onGenerate(fullResponse); // Update the UI with the full response
+      
+      const response = await deepseekService.generateResponse(prompt);
+      onGenerate(response);
     } catch (error) {
       console.error('Error generating response:', error);
       onClose();
     }
   };
-  
 
   const handleInputChange = (label: string, value: string) => {
     setFormData(prev => ({

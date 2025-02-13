@@ -1,3 +1,5 @@
+import { DeepSeekAIResponse } from '../../types';
+
 export class DeepseekAIService {
   private static instance: DeepseekAIService;
   private conversationHistory: { role: string; content: string }[] = [];

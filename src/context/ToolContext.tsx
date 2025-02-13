@@ -1,11 +1,11 @@
 import React, { useState, useContext, createContext } from 'react';
-import type { Tool, OpenAIResponse } from '../types';
 import { ToolModal } from '../components/ToolModal';
-import { OpenAIModal } from '../components/OpenAIModal';
+import { AIModal } from '../components/AIModal';
 import { UsageLimitModal } from '../components/tools/UsageLimitModal';
 import { useToolUsage } from '../hooks/useToolUsage';
 import { useAuth } from './AuthContext';
-import { OpenAIService } from '../services/openai';
+import type { Tool } from '../types';
+import { DeepseekAIService } from '../services/deepseek/deepseekai';
 
 interface ToolContextType {
   selectedTool: Tool | null;
@@ -14,7 +14,7 @@ interface ToolContextType {
   openToolModal: (tool: Tool) => void;
   closeToolModal: () => void;
   closeAIModal: () => void;
-  handleGenerate: (response: OpenAIResponse | null) => void;
+  handleGenerate: (response: string | null) => void;
   handleFollowUp: (prompt: string) => Promise<void>;
 }
 
@@ -25,10 +25,10 @@ export function ToolProvider({ children }: { children: React.ReactNode }) {
   const [isToolModalOpen, setIsToolModalOpen] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
-  const [aiResponse, setAIResponse] = useState<OpenAIResponse | null>(null);
+  const [aiResponse, setAIResponse] = useState<string | null>(null);
   const { userProfile } = useAuth();
   const { usageLimit, trackUsage, refreshUsage } = useToolUsage();
-  const openAIService = OpenAIService.getInstance();
+  const deepseekService = DeepseekAIService.getInstance();
 
   const openToolModal = (tool: Tool) => {
     console.log('[ToolContext] Opening tool modal for:', tool.name);
@@ -54,10 +54,10 @@ export function ToolProvider({ children }: { children: React.ReactNode }) {
     setIsAIModalOpen(false);
     setAIResponse(null);
     setSelectedTool(null);
-    openAIService.clearConversation();
+    deepseekService.clearConversation();
   };
 
-  const handleGenerate = async (response: OpenAIResponse | null) => {
+  const handleGenerate = async (response: string | null) => {
     console.log('[ToolContext] handleGenerate called with response:', !!response);
     
     // If response is null, it means we're starting generation
@@ -103,7 +103,7 @@ export function ToolProvider({ children }: { children: React.ReactNode }) {
   const handleFollowUp = async (prompt: string) => {
     console.log('[ToolContext] Handling follow-up prompt');
     try {
-      const response = await openAIService.continueConversation(prompt);
+      const response = await deepseekService.generateResponse(prompt);
       setAIResponse(response);
     } catch (error) {
       console.error('[ToolContext] Error sending follow-up:', error);
@@ -133,7 +133,7 @@ export function ToolProvider({ children }: { children: React.ReactNode }) {
         />
       )}
       {selectedTool && (
-        <OpenAIModal
+        <AIModal
           isOpen={isAIModalOpen}
           onClose={closeAIModal}
           response={aiResponse}
