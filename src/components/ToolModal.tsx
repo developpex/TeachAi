@@ -1,77 +1,45 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import type { Tool } from '../types';
+import { DeepseekAIService } from '../services/deepseek/deepseekai';
 
 interface ToolModalProps {
   isOpen: boolean;
   onClose: () => void;
   tool: Tool;
+  onGenerate: (response: string | null) => void;
 }
 
-export function ToolModal({ isOpen, onClose, onGenerate, tool }: ToolModalProps) {
 export function ToolModal({ isOpen, onClose, tool, onGenerate }: ToolModalProps) {
   const [formData, setFormData] = useState<Record<string, string>>({});
+  const deepseekService = DeepseekAIService.getInstance();
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+  
     try {
       onGenerate(null);
-      
+  
       const prompt = `Tool: ${tool.name}\n\n${Object.entries(formData)
         .map(([key, value]) => `${key}: ${value}`)
         .join('\n')}`;
+  
+      const fullResponse = await deepseekService.generateResponse(prompt); // Await the full response
+      onGenerate(fullResponse); // Update the UI with the full response
     } catch (error) {
       console.error('Error generating response:', error);
       onClose();
     }
   };
+  
 
   const handleInputChange = (label: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [label]: value
     }));
-  };
-
-  const renderField = (field: ToolField) => {
-    switch (field.type) {
-      case 'textarea':
-        return (
-          <textarea
-            placeholder={field.placeholder}
-            onChange={(e) => handleInputChange(field.label, e.target.value)}
-            className="w-full px-4 py-3 border-2 border-sage/30 rounded-lg text-primary-dark placeholder-primary/50 focus:outline-none focus:ring-accent focus:border-accent resize-none"
-            rows={4}
-          />
-        );
-      
-      case 'select':
-        return (
-          <select
-            onChange={(e) => handleInputChange(field.label, e.target.value)}
-            className="w-full px-4 py-3 border-2 border-sage/30 rounded-lg text-primary-dark focus:outline-none focus:ring-accent focus:border-accent"
-          >
-            <option value="">Select {field.label.toLowerCase()}</option>
-            {field.options?.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        );
-      
-      default: // input type
-        return (
-          <input
-            type="text"
-            placeholder={field.placeholder}
-            onChange={(e) => handleInputChange(field.label, e.target.value)}
-            className="w-full px-4 py-3 border-2 border-sage/30 rounded-lg text-primary-dark placeholder-primary/50 focus:outline-none focus:ring-accent focus:border-accent"
-          />
-        );
-    }
   };
 
   const renderField = (field: ToolField) => {
