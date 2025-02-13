@@ -1,35 +1,28 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import type { Tool } from '../types';
-import { DeepseekAIService } from '../services/deepseek/deepseekai';
 
 interface ToolModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onGenerate: (response: string | null) => void;
   tool: Tool;
 }
 
 export function ToolModal({ isOpen, onClose, onGenerate, tool }: ToolModalProps) {
+export function ToolModal({ isOpen, onClose, tool, onGenerate }: ToolModalProps) {
   const [formData, setFormData] = useState<Record<string, string>>({});
-  const aiService = DeepseekAIService.getInstance();
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+    
     try {
       onGenerate(null);
-  
+      
       const prompt = `Tool: ${tool.name}\n\n${Object.entries(formData)
         .map(([key, value]) => `${key}: ${value}`)
         .join('\n')}`;
-  
-      const fullResponse = await aiService.generateResponse(prompt); // Await the full response
-      onGenerate(fullResponse); // Update the UI with the full response
     } catch (error) {
-      console.error('Error generating response:', error);
       console.error('Error generating response:', error);
       onClose();
     }
@@ -123,7 +116,6 @@ export function ToolModal({ isOpen, onClose, onGenerate, tool }: ToolModalProps)
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
       
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-8 border border-sage/10">
@@ -132,7 +124,6 @@ export function ToolModal({ isOpen, onClose, onGenerate, tool }: ToolModalProps)
               <h3 className="text-xl font-semibold text-primary-dark">{tool.name}</h3>
               <p className="mt-1 text-sm text-primary">{tool.description}</p>
             </div>
-            <button onClick={onClose} className="text-primary hover:text-primary-dark">
             <button onClick={onClose} className="text-primary hover:text-primary-dark">
               <X className="h-6 w-6" />
             </button>
@@ -144,7 +135,6 @@ export function ToolModal({ isOpen, onClose, onGenerate, tool }: ToolModalProps)
                 <label className="block text-sm font-medium text-primary-dark mb-1">
                   {field.label}
                 </label>
-                {renderField(field)}
                 {renderField(field)}
               </div>
             ))}
