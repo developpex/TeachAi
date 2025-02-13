@@ -13,7 +13,8 @@ import {
   UserCircle,
   Shield,
   Building,
-  TicketCheck
+  TicketCheck,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useAdmin } from '../hooks/useAdmin';
@@ -95,6 +96,12 @@ export function Navigation({ onToggle }: NavigationProps) {
         path: '/admin',
         icon: Shield,
         description: 'Global administration'
+      },
+      {
+        title: 'Manage Tools',
+        path: '/manage-tools',
+        icon: Settings,
+        description: 'Manage AI tools'
       },
       {
         title: 'Tickets',

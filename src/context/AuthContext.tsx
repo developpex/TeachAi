@@ -76,7 +76,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const db = getFirestore();
 
   const checkTrialStatus = async (profile: UserProfile) => {
     if (!profile.isTrialActive || !profile.trialEndDate) {
@@ -128,7 +127,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               startDate: data.startDate?.toDate() || new Date(),
               trialStartDate: data.trialStartDate?.toDate() || null,
               trialEndDate: data.trialEndDate?.toDate() || null,
-              plan: data.plan || 'free'
+              plan: data.plan || 'free',
+              favorites: data.favorites || []
             } as UserProfile;
 
             profile = await checkTrialStatus(profile);
@@ -300,13 +300,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const toggleFavorite = async (toolId: string) => {
-    if (!user) return;
+    if (!user || !userProfile) return;
 
     try {
       const userRef = doc(db, 'users', user.uid);
-      const currentFavorites = userProfile?.favorites || [];
-      const isFavorite = currentFavorites.includes(toolId);
-
+      const isFavorite = userProfile.favorites?.includes(toolId);
+      
       if (isFavorite) {
         await updateDoc(userRef, {
           favorites: arrayRemove(toolId)

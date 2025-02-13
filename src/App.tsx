@@ -13,10 +13,11 @@ import { Pricing } from './pages/Pricing';
 import { GlobalAdmin } from './pages/admin/GlobalAdmin';
 import { SchoolAdmin } from './pages/admin/SchoolAdmin';
 import { TicketManagement } from './pages/admin/TicketManagement';
+import { ManageTools } from './pages/admin/ManageTools';
 import { NotAuthorized } from './components/admin/NotAuthorized';
 import { Help } from './pages/Help';
-import { ToolProvider } from './context/ToolContext';
 import { AuthProvider } from './context/AuthContext';
+import { ToolProvider } from './context/ToolContext';
 import { useAuth } from './context/AuthContext';
 import { EmailVerificationBanner } from './components/EmailVerificationBanner';
 
@@ -50,6 +51,7 @@ function AppContent() {
               <Route path="/admin" element={<GlobalAdmin />} />
               <Route path="/school-admin" element={<SchoolAdmin />} />
               <Route path="/tickets" element={<TicketManagement />} />
+              <Route path="/manage-tools" element={<ManageTools />} />
               <Route path="/not-authorized" element={<NotAuthorized />} />
               <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>

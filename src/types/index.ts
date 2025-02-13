@@ -1,3 +1,12 @@
+export type ToolFieldType = 'input' | 'textarea' | 'select';
+
+export interface ToolField {
+  label: string;
+  placeholder: string;
+  type: ToolFieldType;
+  options?: string[]; // For select type fields
+}
+
 export interface ChatMessage {
   id: string;
   type: 'user' | 'assistant';
@@ -37,6 +46,28 @@ export interface OpenAIResponse {
   }>;
 }
 
+export interface DeepSeekAIResponse {
+  model: string;
+  created_at: string;
+  message: {
+    role: string;
+    content: string;
+  };
+  done: boolean;
+}
+
+export interface DeepSeekAIStreamResponse {
+  model: string;
+  created_at: string;
+  message?: {
+    role: string;
+    content: string;
+  };
+  done: boolean;
+}
+
+
+
 export interface Tool {
   id: string;
   name: string;
@@ -44,10 +75,7 @@ export interface Tool {
   icon: string;
   category: 'free' | 'plus' | 'enterprise';
   toolCategory: string;
-  fields: Array<{
-    label: string;
-    placeholder: string;
-  }>;
+  fields: ToolField[];
   isFavorite?: boolean;
 }
 
