@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { UserCircle, Trash2 } from 'lucide-react';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useAuth } from '../../context/AuthContext';

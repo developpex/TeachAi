@@ -1,4 +1,3 @@
-import React from 'react';
 import { ToolGrid } from '../components/tools/ToolGrid';
 import { useTools } from '../hooks/useTools';
 import { useDashboard } from '../hooks/useDashboard';
@@ -6,6 +5,7 @@ import { TeacherInfoModal } from '../components/TeacherInfoModal';
 import { WelcomeBanner } from '../components/dashboard/WelcomeBanner';
 import { UsageLimitBanner } from '../components/tools/UsageLimitBanner';
 import { useToolUsage } from '../hooks/useToolUsage';
+import { PLAN } from '../utils/constants';
 
 export function Dashboard() {
   const {
@@ -18,7 +18,6 @@ export function Dashboard() {
 
   const {
     showTeacherModal,
-    setShowTeacherModal,
     handleTeacherInfo,
     subscriptionLoading,
     userProfile
@@ -45,7 +44,7 @@ export function Dashboard() {
           />
           
           {/* Show usage limit banner for free plan users */}
-          {userPlan === 'free' && usageLimit && (
+          {userPlan === PLAN.FREE && usageLimit && (
             <UsageLimitBanner usageLimit={usageLimit} />
           )}
           

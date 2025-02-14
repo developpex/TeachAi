@@ -1,5 +1,3 @@
-import React from 'react';
-import { Menu, X, Search } from 'lucide-react';
 import { ChannelList } from './ChannelList';
 import { SearchInput } from './SearchInput';
 import type { Channel } from '../../types';
@@ -16,7 +14,6 @@ interface ChatSidebarProps {
 }
 
 export function ChatSidebar({
-  channels,
   selectedChannel,
   searchQuery,
   setSearchQuery,

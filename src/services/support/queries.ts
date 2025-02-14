@@ -3,39 +3,39 @@ import {
   query, 
   where, 
   orderBy, 
-  limit, 
-  startAfter,
-  QueryDocumentSnapshot,
+  // limit,
+  // startAfter,
+  // QueryDocumentSnapshot,
   Timestamp
 } from 'firebase/firestore';
-import { GetTicketsResult, SupportTicket } from './types';
+// import { SupportTicket } from './types';
 
 export function buildTicketQueries(db: any) {
   return {
-    getTicketsByStatus(status: SupportTicket['status'], ticketLimit: number = 5) {
-      const ticketsRef = collection(db, 'support_tickets');
-      return query(
-        ticketsRef,
-        where('status', '==', status),
-        orderBy('updatedAt', 'desc'),
-        limit(ticketLimit)
-      );
-    },
-
-    getMoreTicketsByStatus(
-      status: SupportTicket['status'],
-      lastDoc: QueryDocumentSnapshot,
-      ticketLimit: number = 5
-    ) {
-      const ticketsRef = collection(db, 'support_tickets');
-      return query(
-        ticketsRef,
-        where('status', '==', status),
-        orderBy('updatedAt', 'desc'),
-        startAfter(lastDoc),
-        limit(ticketLimit)
-      );
-    },
+    // getTicketsByStatus(status: SupportTicket['status'], ticketLimit: number = 5) {
+    //   const ticketsRef = collection(db, 'support_tickets');
+    //   return query(
+    //     ticketsRef,
+    //     where('status', '==', status),
+    //     orderBy('updatedAt', 'desc'),
+    //     limit(ticketLimit)
+    //   );
+    // },
+    //
+    // getMoreTicketsByStatus(
+    //   status: SupportTicket['status'],
+    //   lastDoc: QueryDocumentSnapshot,
+    //   ticketLimit: number = 5
+    // ) {
+    //   const ticketsRef = collection(db, 'support_tickets');
+    //   return query(
+    //     ticketsRef,
+    //     where('status', '==', status),
+    //     orderBy('updatedAt', 'desc'),
+    //     startAfter(lastDoc),
+    //     limit(ticketLimit)
+    //   );
+    // },
 
     getOldTickets(daysOld: number) {
       const cutoffDate = new Date();

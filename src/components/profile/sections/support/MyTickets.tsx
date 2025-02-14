@@ -1,32 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MessageSquare, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { useMyTickets } from '../../../../hooks/useMyTickets';
 import { SupportService } from '../../../../services/support';
 import { TicketModal } from '../../../shared/TicketModal';
-
-const TICKET_CATEGORIES = {
-  'technical': 'Technical Issues',
-  'billing': 'Billing & Subscription',
-  'account': 'Account & Security',
-  'feature': 'Feature Requests',
-  'bug': 'Bug Reports',
-  'other': 'Other'
-} as const;
-
-const TICKET_STATUSES = {
-  'open': 'Open',
-  'in_progress': 'In Progress',
-  'resolved': 'Resolved',
-  'cancelled': 'Cancelled',
-  'closed': 'Closed'
-} as const;
+import {ROLE, TICKET_CATEGORIES, TICKET_STATUSES} from "../../../../utils/constants.ts";
 
 interface MyTicketsProps {
   setTickets: (tickets: any[]) => void;
 }
 
 export function MyTickets({ setTickets }: MyTicketsProps) {
-  const { tickets, loading, error, hasMore, loadMore } = useMyTickets();
+  const { tickets, loading } = useMyTickets();
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
@@ -119,12 +103,6 @@ export function MyTickets({ setTickets }: MyTicketsProps) {
         </div>
       </div>
 
-      {error && (
-        <div className="mb-8 p-4 bg-coral/20 border border-accent rounded-lg text-accent-dark">
-          {error}
-        </div>
-      )}
-
       {/* Active Tickets */}
       <div className="space-y-4">
         {activeTickets.length === 0 ? (
@@ -175,19 +153,6 @@ export function MyTickets({ setTickets }: MyTicketsProps) {
         </div>
       )}
 
-      {/* Load More Button */}
-      {hasMore && (
-        <div className="text-center pt-4">
-          <button
-            onClick={loadMore}
-            disabled={loading}
-            className="px-6 py-2 text-accent hover:text-accent-dark disabled:opacity-50"
-          >
-            {loading ? 'Loading...' : 'Load More Tickets'}
-          </button>
-        </div>
-      )}
-
       {/* Ticket Modal */}
       {selectedTicket && (
         <TicketModal
@@ -217,7 +182,7 @@ function TicketCard({ ticket, onClick, TICKET_CATEGORIES }: {
       onClick={onClick}
       className="p-4 border border-sage/20 rounded-lg hover:border-accent/50 cursor-pointer transition-all duration-200 hover:shadow-md relative"
     >
-      {ticket.unreadByUser && ticket.replies?.some((r: any) => !r.read && r.author === 'Admin') && (
+      {ticket.unreadByUser && ticket.replies?.some((r: any) => !r.read && r.author === ROLE.ADMIN) && (
         <div className="absolute -top-2 -right-2 flex items-center justify-center min-w-[24px] h-6 px-1.5 bg-accent text-white text-xs font-medium rounded-full shadow-lg">
           <MessageSquare className="h-3 w-3 mr-1" />
           {ticket.replies.filter((r: any) => !r.read && r.author === 'Admin').length}

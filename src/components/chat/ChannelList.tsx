@@ -1,4 +1,3 @@
-import React from 'react';
 import { Hash } from 'lucide-react';
 import type { Channel } from '../../types';
 import { CATEGORY_ORDER } from '../../utils/constants';

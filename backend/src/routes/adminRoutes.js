@@ -1,6 +1,7 @@
 import express from 'express';
 import admin from 'firebase-admin';
 import { verifyFirebaseToken } from '../config/firebase.js';
+import {ROLE} from "../../../src/utils/constants.js";
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ router.delete('/users/:uid', verifyFirebaseToken, async (req, res) => {
     }
 
     const adminData = adminDoc.data();
-    if (!['owner', 'admin'].includes(adminData.role)) {
+    if (![ROLE.OWNER, ROLE.ADMIN].includes(adminData.role)) {
       return res.status(403).json({ error: 'Not authorized' });
     }
 

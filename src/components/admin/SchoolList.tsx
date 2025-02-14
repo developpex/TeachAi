@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Building, Users, Trash2, Edit, X, Save, Search } from 'lucide-react';
 import { useAdmin } from '../../hooks/useAdmin';
 import type { School, User } from '../../types/admin';

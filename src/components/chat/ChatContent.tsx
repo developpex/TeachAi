@@ -1,4 +1,3 @@
-import React from 'react';
 import { Hash, Menu } from 'lucide-react';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';

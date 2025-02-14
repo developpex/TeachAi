@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X } from 'lucide-react';
 import { AdminService } from '../../services/admin';
 import type { School } from '../../types/admin';

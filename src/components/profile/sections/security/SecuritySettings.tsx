@@ -1,4 +1,3 @@
-import React from 'react';
 import { SecurityAlerts } from './SecurityAlerts';
 import { ActiveSessions } from './ActiveSessions';
 

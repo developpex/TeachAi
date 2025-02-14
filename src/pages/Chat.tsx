@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChatSidebar } from '../components/chat/ChatSidebar';
 import { ChatContent } from '../components/chat/ChatContent';
 import { useChat } from '../hooks/useChat';
@@ -6,7 +5,6 @@ import { useChat } from '../hooks/useChat';
 export function Chat() {
   const {
     selectedChannel,
-    setSelectedChannel,
     channels,
     messages,
     message,

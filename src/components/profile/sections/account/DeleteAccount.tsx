@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function DeleteAccount() {
   return (
     <div className="bg-white rounded-lg shadow-soft border border-sage/10 p-8">

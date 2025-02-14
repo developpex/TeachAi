@@ -2,262 +2,474 @@ import { Tool } from '../types';
 
 export const allTools: Tool[] = [
   {
-    id: '1',
+    id: 'rCdMOw9hbAOEl5eoZUyc',
     name: 'Lesson Plan Generator',
-    description: 'Create comprehensive lesson plans in minutes using AI assistance.',
+    description:
+      'Create comprehensive lesson plans in minutes using AI assistance.',
     icon: 'BookOpen',
     category: 'free',
     toolCategory: 'lesson-planning',
     fields: [
-      { label: 'Subject', placeholder: 'e.g., Mathematics' },
-      { label: 'Grade Level', placeholder: 'e.g., 6th Grade' },
-      { label: 'Topic', placeholder: 'e.g., Fractions' }
-    ]
+      {
+        label: 'Subject',
+        placeholder: 'e.g., Mathematics',
+        type: 'input',
+      },
+      {
+        label: 'Grade Level',
+        placeholder: 'Select grade level',
+        type: 'select',
+        options: [
+          'Kindergarten',
+          '1st Grade',
+          '2nd Grade',
+          '3rd Grade',
+          '4th Grade',
+          '5th Grade',
+          '6th Grade',
+          '7th Grade',
+          '8th Grade',
+          '9th Grade',
+          '10th Grade',
+          '11th Grade',
+          '12th Grade',
+        ],
+      },
+      {
+        label: 'Topic',
+        placeholder: 'e.g., Fractions',
+        type: 'input',
+      },
+      {
+        label: 'Learning Objectives',
+        placeholder: 'Enter the learning objectives for this lesson...',
+        type: 'textarea',
+      },
+    ],
   },
   {
-    id: '2',
-    name: 'Grading Assistant',
-    description: 'Automates grading of quizzes, assignments, and exams with detailed feedback.',
-    icon: 'CheckSquare',
-    category: 'plus',
-    toolCategory: 'administrative',
-    fields: [
-      { label: 'Assignment Type', placeholder: 'e.g., Quiz, Essay, Exam' },
-      { label: 'Subject', placeholder: 'e.g., English Literature' },
-      { label: 'Grading Criteria', placeholder: 'e.g., Grammar, Content, Structure' }
-    ]
-  },
-  {
-    id: '3',
-    name: 'Curriculum Designer',
-    description: 'Plan and organize curriculums aligned with educational frameworks.',
-    icon: 'Layout',
-    category: 'plus',
-    toolCategory: 'lesson-planning',
-    fields: [
-      { label: 'Educational Framework', placeholder: 'e.g., Common Core, IB' },
-      { label: 'Grade Level', placeholder: 'e.g., High School' },
-      { label: 'Subject Area', placeholder: 'e.g., Science' },
-      { label: 'Duration', placeholder: 'e.g., Semester, Year' }
-    ]
-  },
-  {
-    id: '4',
-    name: 'Student Progress Tracker',
-    description: 'Analyze student performance and generate personalized action plans.',
-    icon: 'LineChart',
-    category: 'plus',
-    toolCategory: 'administrative',
-    fields: [
-      { label: 'Student Name/ID', placeholder: 'e.g., John Smith' },
-      { label: 'Subject', placeholder: 'e.g., Mathematics' },
-      { label: 'Time Period', placeholder: 'e.g., Q1 2024' }
-    ]
-  },
-  {
-    id: '5',
-    name: 'Interactive Quiz Generator',
-    description: 'Create engaging quizzes with various question formats and automated grading.',
-    icon: 'HelpCircle',
-    category: 'free',
-    toolCategory: 'student-centered',
-    fields: [
-      { label: 'Quiz Type', placeholder: 'e.g., Multiple Choice, Fill-in-blanks' },
-      { label: 'Topic', placeholder: 'e.g., World War II' },
-      { label: 'Difficulty Level', placeholder: 'e.g., Intermediate' },
-      { label: 'Number of questions', placeholder: 'e.g., 5' }
-    ]
-  },
-  {
-    id: '6',
-    name: 'Classroom Engagement Analytics',
-    description: 'Track participation and analyze student engagement patterns.',
-    icon: 'BarChart2',
-    category: 'plus',
-    toolCategory: 'administrative',
-    fields: [
-      { label: 'Class Name', placeholder: 'e.g., Biology 101' },
-      { label: 'Time Period', placeholder: 'e.g., Last Week' },
-      { label: 'Metrics', placeholder: 'e.g., Participation, Attention' }
-    ]
-  },
-  {
-    id: '7',
-    name: 'Adaptive Learning Pathways',
-    description: 'Create personalized learning paths that adapt to student progress.',
-    icon: 'GitBranch',
-    category: 'plus',
-    toolCategory: 'student-centered',
-    fields: [
-      { label: 'Student Level', placeholder: 'e.g., Beginner' },
-      { label: 'Subject', placeholder: 'e.g., Algebra' },
-      { label: 'Learning Goals', placeholder: 'e.g., Master quadratic equations' }
-    ]
-  },
-  {
-    id: '8',
-    name: 'Question Bank Creator',
-    description: 'Generate comprehensive question banks for various subjects and difficulty levels.',
-    icon: 'Database',
-    category: 'free',
-    toolCategory: 'lesson-planning',
-    fields: [
-      { label: 'Subject', placeholder: 'e.g., Chemistry' },
-      { label: 'Topic', placeholder: 'e.g., Periodic Table' },
-      { label: 'Difficulty Range', placeholder: 'e.g., Easy to Medium' }
-    ]
-  },
-  {
-    id: '9',
-    name: 'Classroom Presentation Builder',
-    description: 'Create engaging slide decks with relevant visuals and key points.',
-    icon: 'Presentation',
-    category: 'free',
-    toolCategory: 'lesson-planning',
-    fields: [
-      { label: 'Topic', placeholder: 'e.g., Solar System' },
-      { label: 'Grade Level', placeholder: 'e.g., 5th Grade' },
-      { label: 'Duration', placeholder: 'e.g., 45 minutes' }
-    ]
-  },
-  {
-    id: '10',
+    id: 'kLmNPq8rsTuVwXyZ1234',
     name: 'Parent Communication Assistant',
-    description: 'Generate professional updates and reports for parent communication.',
+    description:
+      'Generate professional updates and reports for parent communication.',
     icon: 'Mail',
     category: 'plus',
     toolCategory: 'administrative',
     fields: [
-      { label: 'Student Name', placeholder: 'e.g., Emma Thompson' },
-      { label: 'Report Type', placeholder: 'e.g., Progress Update' },
-      { label: 'Time Period', placeholder: 'e.g., March 2024' }
-    ]
+      {
+        label: 'Student Name',
+        placeholder: 'e.g., Emma Thompson',
+        type: 'input',
+      },
+      {
+        label: 'Report Type',
+        placeholder: 'Select report type',
+        type: 'select',
+        options: [
+          'Progress Update',
+          'Behavior Report',
+          'Achievement Report',
+          'Concerns',
+          'General Update',
+        ],
+      },
+      {
+        label: 'Time Period',
+        placeholder: 'e.g., March 2024',
+        type: 'input',
+      },
+      {
+        label: 'Message Content',
+        placeholder: 'Enter the details you want to communicate...',
+        type: 'textarea',
+      },
+    ],
   },
   {
-    id: '11',
+    id: 'aBcDeF5gHiJkLmN6pQr',
     name: 'Classroom Management Assistant',
     description: 'Streamline administrative tasks and schedule management.',
     icon: 'Calendar',
     category: 'free',
     toolCategory: 'administrative',
     fields: [
-      { label: 'Class Name', placeholder: 'e.g., Grade 7 Science' },
-      { label: 'Task Type', placeholder: 'e.g., Attendance, Schedule' },
-      { label: 'Date Range', placeholder: 'e.g., This Week' }
-    ]
+      {
+        label: 'Class Name',
+        placeholder: 'e.g., Grade 7 Science',
+        type: 'input',
+      },
+      {
+        label: 'Task Type',
+        placeholder: 'Select task type',
+        type: 'select',
+        options: [
+          'Attendance',
+          'Schedule Planning',
+          'Resource Management',
+          'Event Planning',
+          'Task Assignment',
+        ],
+      },
+      {
+        label: 'Date Range',
+        placeholder: 'Select time period',
+        type: 'select',
+        options: ['Today', 'This Week', 'This Month', 'Custom Period'],
+      },
+      {
+        label: 'Additional Details',
+        placeholder: 'Enter any specific requirements or notes...',
+        type: 'textarea',
+      },
+    ],
   },
   {
-    id: '12',
+    id: 'xYz7WvUt8sRqPoNmLkJ',
     name: 'Gamification Tools',
-    description: 'Create educational games and reward systems to boost engagement.',
+    description:
+      'Create educational games and reward systems to boost engagement.',
     icon: 'Trophy',
     category: 'plus',
     toolCategory: 'student-centered',
     fields: [
-      { label: 'Activity Type', placeholder: 'e.g., Quiz Game' },
-      { label: 'Subject', placeholder: 'e.g., Geography' },
-      { label: 'Reward System', placeholder: 'e.g., Points, Badges' }
-    ]
+      {
+        label: 'Activity Type',
+        placeholder: 'Select activity type',
+        type: 'select',
+        options: [
+          'Quiz Game',
+          'Points System',
+          'Achievement Badges',
+          'Learning Challenge',
+          'Team Competition',
+        ],
+      },
+      {
+        label: 'Subject',
+        placeholder: 'e.g., Geography',
+        type: 'input',
+      },
+      {
+        label: 'Grade Level',
+        placeholder: 'Select grade level',
+        type: 'select',
+        options: ['Elementary', 'Middle School', 'High School'],
+      },
+      {
+        label: 'Game Rules',
+        placeholder: 'Describe the game rules and reward system...',
+        type: 'textarea',
+      },
+    ],
   },
   {
-    id: '13',
+    id: 'hGfDsA9kLpMnBvCxZq',
     name: 'Pronunciation Coach',
-    description: 'Provide instant feedback on language pronunciation and phonetics.',
+    description:
+      'Provide instant feedback on language pronunciation and phonetics.',
     icon: 'Mic',
     category: 'plus',
     toolCategory: 'subject-specific',
     fields: [
-      { label: 'Language', placeholder: 'e.g., Spanish' },
-      { label: 'Level', placeholder: 'e.g., Beginner' },
-      { label: 'Focus Area', placeholder: 'e.g., Vowel Sounds' }
-    ]
+      {
+        label: 'Language',
+        placeholder: 'Select language',
+        type: 'select',
+        options: [
+          'English',
+          'Spanish',
+          'French',
+          'German',
+          'Mandarin',
+          'Japanese',
+        ],
+      },
+      {
+        label: 'Level',
+        placeholder: 'Select proficiency level',
+        type: 'select',
+        options: ['Beginner', 'Intermediate', 'Advanced'],
+      },
+      {
+        label: 'Focus Area',
+        placeholder: 'Select focus area',
+        type: 'select',
+        options: [
+          'Vowel Sounds',
+          'Consonants',
+          'Word Stress',
+          'Intonation',
+          'Connected Speech',
+        ],
+      },
+      {
+        label: 'Practice Text',
+        placeholder: 'Enter the text for pronunciation practice...',
+        type: 'textarea',
+      },
+    ],
   },
   {
-    id: '14',
+    id: 'jKlMnO5pQrStUvWxYz',
     name: 'Special Needs Support',
-    description: 'Customize learning materials for students with special educational needs.',
+    description:
+      'Customize learning materials for students with special educational needs.',
     icon: 'Heart',
     category: 'plus',
     toolCategory: 'student-centered',
     fields: [
-      { label: 'Accommodation Type', placeholder: 'e.g., Visual Aid' },
-      { label: 'Subject', placeholder: 'e.g., Reading' },
-      { label: 'Special Need', placeholder: 'e.g., Dyslexia' }
-    ]
+      {
+        label: 'Student Name',
+        placeholder: 'Enter student name',
+        type: 'input',
+      },
+      {
+        label: 'Accommodation Type',
+        placeholder: 'Select accommodation type',
+        type: 'select',
+        options: [
+          'Visual Aid',
+          'Audio Support',
+          'Extended Time',
+          'Modified Content',
+          'Assistive Technology',
+        ],
+      },
+      {
+        label: 'Subject Area',
+        placeholder: 'e.g., Reading',
+        type: 'input',
+      },
+      {
+        label: 'Specific Needs',
+        placeholder:
+          'Describe the specific learning needs and accommodations required...',
+        type: 'textarea',
+      },
+    ],
   },
   {
-    id: '15',
-    name: 'Plagiarism Checker',
-    description: 'Analyze student submissions for originality and proper citations.',
-    icon: 'Search',
-    category: 'plus',
-    toolCategory: 'administrative',
-    fields: [
-      { label: 'Document Type', placeholder: 'e.g., Essay' },
-      { label: 'Subject', placeholder: 'e.g., History' },
-      { label: 'Citation Style', placeholder: 'e.g., APA, MLA' }
-    ]
-  },
-  {
-    id: '16',
+    id: 'qWeRtY6uIoPaSdFgHj',
     name: 'Virtual Teaching Assistant',
-    description: 'AI-powered assistant for answering student questions and providing explanations.',
+    description:
+      'AI-powered assistant for answering student questions and providing explanations.',
     icon: 'Bot',
-    category: 'enterprise',
+    category: 'plus',
     toolCategory: 'student-centered',
     fields: [
-      { label: 'Subject Area', placeholder: 'e.g., Physics' },
-      { label: 'Grade Level', placeholder: 'e.g., High School' },
-      { label: 'Topic', placeholder: 'e.g., Newton\'s Laws' }
-    ]
+      {
+        label: 'Subject Area',
+        placeholder: 'e.g., Physics',
+        type: 'input',
+      },
+      {
+        label: 'Topic',
+        placeholder: "e.g., Newton's Laws",
+        type: 'input',
+      },
+      {
+        label: 'Question Type',
+        placeholder: 'Select question type',
+        type: 'select',
+        options: [
+          'Concept Explanation',
+          'Problem Solving',
+          'Homework Help',
+          'Study Tips',
+          'Review',
+        ],
+      },
+      {
+        label: 'Student Question',
+        placeholder: 'Enter the student question or topic to explain...',
+        type: 'textarea',
+      },
+    ],
   },
-  // New tools with their categories
   {
-    id: '17',
-    name: 'Differentiation Wizard',
-    description: 'Create differentiated learning materials for diverse student needs.',
-    icon: 'SplitSquareVertical',
+    id: 'mNbVcX8zLkJhGfDsA9',
+    name: 'Assessment Builder',
+    description:
+      'Create comprehensive assessments with various question types and automated grading.',
+    icon: 'ClipboardCheck',
     category: 'plus',
     toolCategory: 'lesson-planning',
     fields: [
-      { label: 'Subject', placeholder: 'e.g., English Literature' },
-      { label: 'Learning Levels', placeholder: 'e.g., Basic, Intermediate, Advanced' }
-    ]
+      {
+        label: 'Assessment Type',
+        placeholder: 'Select assessment type',
+        type: 'select',
+        options: [
+          'Quiz',
+          'Test',
+          'Final Exam',
+          'Project Rubric',
+          'Performance Task',
+        ],
+      },
+      {
+        label: 'Subject',
+        placeholder: 'e.g., Biology',
+        type: 'input',
+      },
+      {
+        label: 'Grade Level',
+        placeholder: 'Select grade level',
+        type: 'select',
+        options: [
+          'Elementary',
+          'Middle School',
+          'High School',
+          'Advanced Placement',
+        ],
+      },
+      {
+        label: 'Topics Covered',
+        placeholder: 'Enter the topics to be assessed...',
+        type: 'textarea',
+      },
+    ],
   },
   {
-    id: '18',
-    name: 'Rubric Builder',
-    description: 'Design comprehensive assessment rubrics with clear criteria.',
-    icon: 'TableProperties',
+    id: 'pQrStU7vWxYzAbCdEf',
+    name: 'Vocabulary Builder',
+    description:
+      'Generate customized vocabulary lists and interactive learning activities.',
+    icon: 'BookText',
     category: 'free',
-    toolCategory: 'lesson-planning',
+    toolCategory: 'subject-specific',
     fields: [
-      { label: 'Assignment Type', placeholder: 'e.g., Essay, Project' },
-      { label: 'Criteria Categories', placeholder: 'e.g., Content, Organization' }
-    ]
+      {
+        label: 'Subject Area',
+        placeholder: 'e.g., Literature, Science, Social Studies',
+        type: 'input',
+      },
+      {
+        label: 'Difficulty Level',
+        placeholder: 'Select difficulty level',
+        type: 'select',
+        options: ['Basic', 'Intermediate', 'Advanced', 'Academic'],
+      },
+      {
+        label: 'Number of Words',
+        placeholder: 'e.g., 10, 15, 20',
+        type: 'input',
+      },
+      {
+        label: 'Context',
+        placeholder: 'Provide context or specific text source...',
+        type: 'textarea',
+      },
+    ],
   },
   {
-    id: '19',
-    name: 'Study Guide Generator',
-    description: 'Create comprehensive study guides and review materials.',
-    icon: 'Notebook',
-    category: 'free',
-    toolCategory: 'lesson-planning',
-    fields: [
-      { label: 'Subject', placeholder: 'e.g., Biology' },
-      { label: 'Topic', placeholder: 'e.g., Cell Structure' }
-    ]
-  },
-  {
-    id: '20',
-    name: 'Project Planner',
-    description: 'Plan and organize student projects with timelines and milestones.',
-    icon: 'Gantt',
+    id: 'gHiJkL4mNoPqRsTuVw',
+    name: 'Lab Report Generator',
+    description:
+      'Create detailed science lab reports with proper formatting and sections.',
+    icon: 'TestTube',
     category: 'plus',
+    toolCategory: 'subject-specific',
+    fields: [
+      {
+        label: 'Science Subject',
+        placeholder: 'Select subject',
+        type: 'select',
+        options: ['Biology', 'Chemistry', 'Physics', 'Environmental Science'],
+      },
+      {
+        label: 'Experiment Title',
+        placeholder: 'e.g., Photosynthesis Rate in Plants',
+        type: 'input',
+      },
+      {
+        label: 'Hypothesis',
+        placeholder: 'Enter the experiment hypothesis...',
+        type: 'textarea',
+      },
+      {
+        label: 'Data Collection',
+        placeholder: 'Describe the data collected during the experiment...',
+        type: 'textarea',
+      },
+    ],
+  },
+  {
+    id: 'xYzAbC3dEfGhIjKlMn',
+    name: 'Math Problem Generator',
+    description:
+      'Generate customized math problems with step-by-step solutions.',
+    icon: 'Calculator',
+    category: 'plus',
+    toolCategory: 'subject-specific',
+    fields: [
+      {
+        label: 'Math Topic',
+        placeholder: 'Select topic',
+        type: 'select',
+        options: [
+          'Algebra',
+          'Geometry',
+          'Trigonometry',
+          'Calculus',
+          'Statistics',
+        ],
+      },
+      {
+        label: 'Difficulty',
+        placeholder: 'Select difficulty level',
+        type: 'select',
+        options: ['Basic', 'Intermediate', 'Advanced', 'Challenge'],
+      },
+      {
+        label: 'Number of Problems',
+        placeholder: 'e.g., 5, 10, 15',
+        type: 'input',
+      },
+      {
+        label: 'Specific Concepts',
+        placeholder: 'List specific concepts to focus on...',
+        type: 'textarea',
+      },
+    ],
+  },
+  {
+    id: 'oPqRsT2uVwXyZaBcDe',
+    name: 'Writing Prompt Generator',
+    description:
+      'Generate creative and engaging writing prompts for various genres and subjects.',
+    icon: 'PenTool',
+    category: 'free',
     toolCategory: 'lesson-planning',
     fields: [
-      { label: 'Project Type', placeholder: 'e.g., Research Project' },
-      { label: 'Duration', placeholder: 'e.g., 4 weeks' }
-    ]
-  }
+      {
+        label: 'Writing Type',
+        placeholder: 'Select writing type',
+        type: 'select',
+        options: [
+          'Narrative',
+          'Expository',
+          'Persuasive',
+          'Descriptive',
+          'Creative',
+        ],
+      },
+      {
+        label: 'Grade Level',
+        placeholder: 'Select grade level',
+        type: 'select',
+        options: ['Elementary', 'Middle School', 'High School', 'Advanced'],
+      },
+      {
+        label: 'Theme',
+        placeholder: 'e.g., Adventure, Science Fiction, History',
+        type: 'input',
+      },
+      {
+        label: 'Additional Requirements',
+        placeholder: 'Enter any specific requirements or focus areas...',
+        type: 'textarea',
+      },
+    ],
+  },
 ];

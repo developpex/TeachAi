@@ -1,4 +1,4 @@
-import React from 'react';
+import {PLAN} from "../../utils/constants.ts";
 
 interface ToolsHeaderProps {
   userPlan: string;
@@ -11,7 +11,7 @@ export function ToolsHeader({ userPlan }: ToolsHeaderProps) {
       <p className="mt-4 text-xl text-primary">
         Select a tool to get started with AI-powered education
       </p>
-      {userPlan === 'free' && (
+      {userPlan === PLAN.FREE && (
       <a href="/profile/subscription" className="mt-2 text-accent underline">
                 Upgrade to access premium tools and features
       </a>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChevronDown, Hash } from 'lucide-react';
 import type { Channel } from '../../types';
 

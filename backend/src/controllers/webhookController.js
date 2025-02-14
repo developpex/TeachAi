@@ -1,5 +1,6 @@
 import stripe from '../config/stripe.js';
 import { db } from '../config/firebase.js';
+import {PLAN} from "../../../src/utils/constants.js";
 
 export async function handleWebhook(req, res) {
   const sig = req.headers['stripe-signature'];
@@ -54,7 +55,7 @@ async function handleCheckoutSessionCompleted(session) {
   await db.collection('users').doc(firebaseUID).update({
     stripeSubscriptionId: subscription.id,
     subscriptionStatus: subscription.status,
-    plan: 'plus',
+    plan: PLAN.PLUS,
     isTrialActive: false,
     trialStartDate: null,
     trialEndDate: null,
@@ -83,7 +84,7 @@ async function handleSubscriptionDeleted(subscription) {
   const { firebaseUID } = customer.metadata;
 
   await db.collection('users').doc(firebaseUID).update({
-    plan: 'free',
+    plan: PLAN.FREE,
     subscriptionStatus: 'canceled',
     stripeSubscriptionId: null,
     currentPeriodEnd: null,

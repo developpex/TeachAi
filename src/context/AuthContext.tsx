@@ -1,20 +1,30 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  User,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithEmailAndPassword,
+import React, {createContext, useContext, useEffect, useState} from 'react';
+import {
   createUserWithEmailAndPassword,
-  signOut,
+  EmailAuthProvider,
+  GoogleAuthProvider,
   onAuthStateChanged,
+  reauthenticateWithCredential,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
   updateEmail,
   updatePassword,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  sendEmailVerification
+  User
 } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, Timestamp } from 'firebase/firestore';
-import { auth } from '../config/firebase';
+import {
+  arrayRemove,
+  arrayUnion,
+  doc,
+  getDoc,
+  getFirestore,
+  setDoc,
+  Timestamp,
+  updateDoc
+} from 'firebase/firestore';
+import {auth} from '../config/firebase';
+import {PLAN} from "../utils/constants.ts";
 
 interface UserProfile {
   fullName: string;
@@ -25,7 +35,6 @@ interface UserProfile {
   gender?: string;
   school?: string;
   language?: string;
-  photoURL?: string;
   favorites?: string[];
   plan: 'free' | 'plus' | 'enterprise';
   isTrialActive: boolean;
@@ -66,7 +75,7 @@ const DEFAULT_PROFILE: UserProfile = {
   school: '',
   language: 'en',
   favorites: [],
-  plan: 'free',
+  plan: PLAN.FREE,
   isTrialActive: false,
   startDate: new Date(),
   isProfileComplete: false
@@ -77,31 +86,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
+  const checkTrialStatus = async (profile: UserProfile) => {
+    if (!profile.isTrialActive || !profile.trialEndDate) {
+      return profile;
+    }
+
+    const now = new Date();
+    const trialEnd = profile.trialEndDate instanceof Date
+      ? profile.trialEndDate 
+      : profile.trialEndDate.toDate();
+
+    if (now > trialEnd) {
+      console.log('Trial has expired, updating profile...');
+      const updates = {
+        plan: PLAN.FREE,
+        isTrialActive: false,
+        hadPreviousTrial: true,
+        trialEndDate: null,
+        trialStartDate: null
+      };
+
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+        await updateDoc(userRef, updates);
+      }
+
+      return {
+        ...profile,
+        ...updates
+      };
+    }
+
+    return profile;
+  };
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    return onAuthStateChanged(auth, async (user) => {
       setUser(user);
       if (user) {
         try {
           const userRef = doc(db, 'users', user.uid);
           const profileDoc = await getDoc(userRef);
-          
+
           if (profileDoc.exists()) {
             const data = profileDoc.data();
-            // Convert Firestore Timestamps to Dates and ensure email is set
-            const profile = {
+            let profile = {
               ...data,
-              email: user.email || data.email || '', // Prioritize auth email
+              email: user.email || data.email || '',
               startDate: data.startDate?.toDate() || new Date(),
               trialStartDate: data.trialStartDate?.toDate() || null,
               trialEndDate: data.trialEndDate?.toDate() || null,
-              plan: data.plan || 'free'
+              plan: data.plan || PLAN.FREE,
+              favorites: data.favorites || []
             } as UserProfile;
-            
-            // Update Firestore if email is missing
+
+            profile = await checkTrialStatus(profile);
+
             if (!data.email && user.email) {
-              await updateDoc(userRef, { email: user.email });
+              await updateDoc(userRef, {email: user.email});
             }
-            
+
             setUserProfile(profile);
           } else {
             const initialProfile: UserProfile = {
@@ -109,7 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               email: user.email || '',
               startDate: new Date()
             };
-            
+
             await setDoc(userRef, {
               ...initialProfile,
               startDate: Timestamp.fromDate(initialProfile.startDate)
@@ -124,8 +168,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setLoading(false);
     });
-
-    return unsubscribe;
   }, []);
 
   const signInWithGoogle = async () => {
@@ -235,13 +277,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user.email) throw new Error('User email is required');
 
     try {
-      // Create the credential with the current email and password
       const credential = EmailAuthProvider.credential(user.email, currentPassword);
 
-      // Reauthenticate
       await reauthenticateWithCredential(user, credential);
 
-      // If reauthentication succeeds, update the password
       await updatePassword(user, newPassword);
 
       return {
@@ -251,7 +290,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error: any) {
       console.error('Error updating password:', error);
       
-      // Handle specific Firebase error codes
       switch (error.code) {
         case 'auth/wrong-password':
         case 'auth/invalid-credential':
@@ -269,13 +307,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const toggleFavorite = async (toolId: string) => {
-    if (!user) return;
+    if (!user || !userProfile) return;
 
     try {
       const userRef = doc(db, 'users', user.uid);
-      const currentFavorites = userProfile?.favorites || [];
-      const isFavorite = currentFavorites.includes(toolId);
-
+      const isFavorite = userProfile.favorites?.includes(toolId);
+      
       if (isFavorite) {
         await updateDoc(userRef, {
           favorites: arrayRemove(toolId)
@@ -301,6 +338,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const startTrial = async () => {
     if (!user) throw new Error('No user logged in');
+    
+    const userRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userRef);
+    const userData = userDoc.data();
+
+    if (userData?.hadPreviousTrial) {
+      throw new Error('You have already used your free trial');
+    }
 
     const trialStartDate = new Date();
     const trialEndDate = new Date();
@@ -311,7 +356,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         plan: 'plus',
         isTrialActive: true,
         trialStartDate,
-        trialEndDate
+        trialEndDate,
+        hadPreviousTrial: false
       });
     } catch (error) {
       console.error('Error starting trial:', error);

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { PublicNavigation } from '../components/PublicNavigation';
+import { PublicNavigation } from '../components/navigation/PublicNavigation.tsx';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -17,6 +17,7 @@ export function Login() {
       navigate('/dashboard');
     } catch (error) {
       setError('Failed to sign in. Please check your credentials.');
+      console.log(error);
     }
   };
 
@@ -25,7 +26,8 @@ export function Login() {
       await signInWithGoogle();
       navigate('/dashboard');
     } catch (error) {
-      setError('Failed to sign in with Google.');
+      setError('Failed to sign in with Google.')
+      console.log(error);
     }
   };
 

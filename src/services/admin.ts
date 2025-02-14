@@ -20,6 +20,7 @@ import {
 import { initializeApp, deleteApp } from 'firebase/app';
 import type { School, User, CreateSchoolData } from '../types/admin';
 import { generatePassword } from '../utils/auth';
+import {PLAN, ROLE} from "../utils/constants.ts";
 
 export class AdminService {
   private static instance: AdminService;
@@ -134,9 +135,9 @@ export class AdminService {
       const userRef = doc(this.db, 'users', adminUserCredential.user.uid);
       const userData = {
         email: adminEmail.trim(),
-        role: 'admin' as const,
+        role: ROLE.ADMIN,
         schoolId: schoolRef.id,
-        plan: 'enterprise' as const,
+        plan: PLAN.ENTERPRISE,
         createdAt: now,
         updatedAt: now
       };

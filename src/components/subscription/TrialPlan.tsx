@@ -1,4 +1,3 @@
-import React from 'react';
 import { Star, Package } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { SubscribeButton } from './SubscribeButton';

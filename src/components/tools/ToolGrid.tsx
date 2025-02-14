@@ -1,5 +1,4 @@
-import React from 'react';
-import { ToolCard } from '../ToolCard';
+import { ToolCard } from './ToolCard.tsx';
 import { useAuth } from '../../context/AuthContext';
 import { useToolContext } from '../../context/ToolContext';
 import type { Tool } from '../../types';

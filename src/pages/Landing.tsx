@@ -1,9 +1,7 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Sparkles, 
-  BookOpen, 
-  Brain, 
+  Brain,
   Zap, 
   Users, 
   ArrowRight, 
@@ -11,7 +9,7 @@ import {
   CheckCircle2,
   Laptop
 } from 'lucide-react';
-import { PublicNavigation } from '../components/PublicNavigation';
+import { PublicNavigation } from '../components/navigation/PublicNavigation.tsx';
 
 export function Landing() {
   return (

@@ -1,3 +1,12 @@
+export type ToolFieldType = 'input' | 'textarea' | 'select';
+
+export interface ToolField {
+  label: string;
+  placeholder: string;
+  type: ToolFieldType;
+  options?: string[];
+}
+
 export interface ChatMessage {
   id: string;
   type: 'user' | 'assistant';
@@ -22,21 +31,6 @@ export interface Channel {
   };
 }
 
-export interface OpenAIResponse {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  choices: Array<{
-    index: number;
-    message: {
-      role: string;
-      content: string;
-    };
-    finish_reason: string;
-  }>;
-}
-
 export interface Tool {
   id: string;
   name: string;
@@ -44,10 +38,7 @@ export interface Tool {
   icon: string;
   category: 'free' | 'plus' | 'enterprise';
   toolCategory: string;
-  fields: Array<{
-    label: string;
-    placeholder: string;
-  }>;
+  fields: ToolField[];
   isFavorite?: boolean;
 }
 

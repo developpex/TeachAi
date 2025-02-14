@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { useSupport } from '../../../../hooks/useSupport';
 import { SupportForm } from './SupportForm';

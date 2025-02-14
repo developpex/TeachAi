@@ -1,4 +1,3 @@
-import React from 'react';
 import { useStripeCheckout } from '../../hooks/useStripeCheckout';
 import { PRICE_IDS } from '../../config/stripe';
 

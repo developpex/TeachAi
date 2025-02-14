@@ -18,15 +18,15 @@ export function generatePassword(): string {
   return password.split('').sort(() => Math.random() - 0.5).join('');
 }
 
-function checkUserRole(requiredRole: string, userRole: string | null): boolean {
-  if (!userRole) return false;
-  
-  const roleHierarchy = {
-    owner: 3,
-    admin: 2,
-    user: 1
-  };
-
-  return roleHierarchy[userRole as keyof typeof roleHierarchy] >= 
-         roleHierarchy[requiredRole as keyof typeof roleHierarchy];
-}
+// function checkUserRole(requiredRole: string, userRole: string | null): boolean {
+//   if (!userRole) return false;
+//
+//   const roleHierarchy = {
+//     owner: 3,
+//     admin: 2,
+//     user: 1
+//   };
+//
+//   return roleHierarchy[userRole as keyof typeof roleHierarchy] >=
+//          roleHierarchy[requiredRole as keyof typeof roleHierarchy];
+// }

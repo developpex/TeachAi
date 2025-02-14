@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Navigation } from './components/Navigation';
+import { Navigation } from './components/navigation/Navigation.tsx';
 import { Dashboard } from './pages/Dashboard';
 import { Tools } from './pages/Tools';
 import { Chat } from './pages/Chat';
@@ -13,22 +13,22 @@ import { Pricing } from './pages/Pricing';
 import { GlobalAdmin } from './pages/admin/GlobalAdmin';
 import { SchoolAdmin } from './pages/admin/SchoolAdmin';
 import { TicketManagement } from './pages/admin/TicketManagement';
+import { ManageTools } from './pages/admin/ManageTools';
 import { NotAuthorized } from './components/admin/NotAuthorized';
-import { Help } from './pages/Help';
-import { ToolProvider } from './context/ToolContext';
 import { AuthProvider } from './context/AuthContext';
+import { ToolProvider } from './context/ToolContext';
 import { useAuth } from './context/AuthContext';
 import { EmailVerificationBanner } from './components/EmailVerificationBanner';
 
-function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  
-  return user ? <>{children}</> : <Navigate to="/" />;
-}
+// function PrivateRoute({ children }: { children: React.ReactNode }) {
+//   const { user, loading } = useAuth();
+//
+//   if (loading) {
+//     return <div>Loading...</div>;
+//   }
+//
+//   return user ? <>{children}</> : <Navigate to="/" />;
+// }
 
 function AppContent() {
   const { user } = useAuth();
@@ -46,10 +46,10 @@ function AppContent() {
               <Route path="/tools" element={<Tools />} />
               <Route path="/chat" element={<Chat />} />
               <Route path="/profile/*" element={<Profile />} />
-              <Route path="/help" element={<Help />} />
               <Route path="/admin" element={<GlobalAdmin />} />
               <Route path="/school-admin" element={<SchoolAdmin />} />
               <Route path="/tickets" element={<TicketManagement />} />
+              <Route path="/manage-tools" element={<ManageTools />} />
               <Route path="/not-authorized" element={<NotAuthorized />} />
               <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>

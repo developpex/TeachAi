@@ -1,14 +1,20 @@
-export const CATEGORY_ORDER = ['General', 'Education', 'Students'];
+export const CATEGORY_ORDER = ['General', 'Education', 'Students'] as const;
 
-const TOOL_CATEGORIES = {
-  'lesson-planning': 'Lesson Planning & Design',
-  'subject-specific': 'Subject-Specific Tools',
-  'student-centered': 'Student-Centered Tools',
-  'administrative': 'Administrative & Support',
-  'cultural': 'Cultural & Inclusive Education'
+export const ROLE = {
+  USER: 'user',
+  ADMIN: 'admin',
+  OWNER: 'owner',
 } as const;
 
-const PRICING_TIERS = [
+export const PLAN = {
+  FREE: 'free',
+  PLUS: 'plus',
+  ENTERPRISE: 'enterprise'
+} as const;
+
+export const TOOL_CATEGORIES = ['all', 'lesson-planning', 'subject-specific', 'student-centered', 'administrative', 'cultural'] as const;
+
+export const PRICING_TIERS = [
   {
     name: 'Free',
     price: '0',
@@ -23,7 +29,7 @@ const PRICING_TIERS = [
   },
   {
     name: 'Plus',
-    price: '29',
+    price: '9,99',
     description: 'Unlock advanced features for individual teachers',
     features: [
       'All Free features',
@@ -37,7 +43,7 @@ const PRICING_TIERS = [
   },
   {
     name: 'Enterprise',
-    price: '99',
+    price: '1000',
     description: 'Complete solution for schools and institutions',
     features: [
       'All Plus features',
@@ -50,3 +56,20 @@ const PRICING_TIERS = [
     buttonText: 'Contact Sales'
   }
 ] as const;
+
+export const TICKET_CATEGORIES = {
+  'technical': 'Technical Issues',
+  'billing': 'Billing & Subscription',
+  'account': 'Account & Security',
+  'feature': 'Feature Requests',
+  'bug': 'Bug Reports',
+  'other': 'Other'
+} as const;
+
+export const TICKET_STATUSES = {
+  'open': 'Open',
+  'in_progress': 'In Progress',
+  'resolved': 'Resolved',
+  'cancelled': 'Cancelled',
+  'closed': 'Closed'
+} as const;

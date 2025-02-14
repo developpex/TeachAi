@@ -5,7 +5,6 @@ import { SupportService, SupportTicket } from '../services/support';
 export function useMyTickets() {
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const supportService = SupportService.getInstance();
 
@@ -27,7 +26,6 @@ export function useMyTickets() {
   return {
     tickets,
     loading,
-    error,
     setTickets
   };
 }

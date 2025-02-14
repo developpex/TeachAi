@@ -1,5 +1,5 @@
 import { TicketOperations } from './operations';
-export type { SupportTicket, CreateTicketData, GetTicketsResult } from './types';
+import { CreateTicketData, SupportTicket } from './types';
 
 export class SupportService {
   private static instance: SupportService;

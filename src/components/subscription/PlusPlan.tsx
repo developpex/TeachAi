@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Star, Package } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import StripeService from '../../services/stripe';
 import type { SubscriptionStatus } from '../../types';
@@ -13,8 +12,7 @@ interface PlusPlanProps {
 export function PlusPlan({ subscription }: PlusPlanProps) {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
-  const { userProfile, updateUserProfile } = useAuth();
-  const navigate = useNavigate();
+  const { updateUserProfile } = useAuth();
   const stripeService = StripeService.getInstance();
 
   const handleCancelSubscription = async () => {

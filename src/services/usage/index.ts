@@ -7,7 +7,7 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 import { auth } from '../../config/firebase';
-import type { ToolUsageEntry, UserToolUsage, UsageLimit } from './types';
+import type { UserToolUsage, UsageLimit } from './types';
 
 const WEEKLY_LIMIT = 5;
 

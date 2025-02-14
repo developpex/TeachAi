@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface NotificationToggleProps {
   checked: boolean;
   onChange: () => void;
