@@ -4,7 +4,7 @@ export interface ToolField {
   label: string;
   placeholder: string;
   type: ToolFieldType;
-  options?: string[]; // For select type fields
+  options?: string[];
 }
 
 export interface ChatMessage {
@@ -30,43 +30,6 @@ export interface Channel {
     userDisplayName: string;
   };
 }
-
-export interface OpenAIResponse {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  choices: Array<{
-    index: number;
-    message: {
-      role: string;
-      content: string;
-    };
-    finish_reason: string;
-  }>;
-}
-
-export interface DeepSeekAIResponse {
-  model: string;
-  created_at: string;
-  message: {
-    role: string;
-    content: string;
-  };
-  done: boolean;
-}
-
-export interface DeepSeekAIStreamResponse {
-  model: string;
-  created_at: string;
-  message?: {
-    role: string;
-    content: string;
-  };
-  done: boolean;
-}
-
-
 
 export interface Tool {
   id: string;

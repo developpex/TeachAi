@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Tool } from '../types';
-import { DeepseekAIService } from '../services/deepseek/deepseekai';
 
 interface Message {
   id: string;
@@ -13,7 +12,6 @@ interface Message {
 export function useAIModal(
   response: string | null,
   onSendFollowUp: (prompt: string) => Promise<void>,
-  tool: Tool
 ) {
   const [followUpPrompt, setFollowUpPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);

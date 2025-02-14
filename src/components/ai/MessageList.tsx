@@ -1,5 +1,4 @@
-import React from 'react';
-import { Message } from './Message';
+import { Message } from './Message.tsx';
 import type { Message as MessageType } from '../../types';
 
 interface MessageListProps {

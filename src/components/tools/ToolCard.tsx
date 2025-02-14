@@ -1,7 +1,8 @@
 import React from 'react';
 import { Star, StarOff } from 'lucide-react';
-import { getIconComponent } from '../utils/icons';
-import type { Tool } from '../types';
+import { getIconComponent } from '../../utils/icons.ts';
+import type { Tool } from '../../types';
+import {PLAN} from "../../utils/constants.ts";
 
 interface ToolCardProps {
   tool: Tool;
@@ -46,9 +47,9 @@ export function ToolCard({ tool, onToggleFavorite }: ToolCardProps) {
       
       <div className="mt-4 flex flex-wrap gap-2">
         <span className={`text-sm px-3 py-1.5 rounded-full ${
-          tool.category === 'free' 
+          tool.category === PLAN.FREE 
             ? 'bg-mint/20 text-primary'
-            : tool.category === 'plus'
+            : tool.category === PLAN.PLUS
             ? 'bg-accent/20 text-accent-dark'
             : 'bg-sage/20 text-primary-dark'
         }`}>

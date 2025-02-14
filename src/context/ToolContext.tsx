@@ -1,11 +1,12 @@
 import React, { useState, useContext, createContext } from 'react';
-import { ToolModal } from '../components/ToolModal';
-import { AIModal } from '../components/AIModal';
+import { ToolModal } from '../components/tools/ToolModal.tsx';
+import { AIModal } from '../components/ai/AIModal.tsx';
 import { UsageLimitModal } from '../components/tools/UsageLimitModal';
 import { useToolUsage } from '../hooks/useToolUsage';
 import { useAuth } from './AuthContext';
 import type { Tool } from '../types';
-import { DeepseekAIService } from '../services/deepseek/deepseekai';
+import { DeepseekAIService } from '../services/deepseek/DeepseekAIService.ts';
+import {PLAN} from "../utils/constants.ts";
 
 interface ToolContextType {
   selectedTool: Tool | null;
@@ -34,7 +35,7 @@ export function ToolProvider({ children }: { children: React.ReactNode }) {
     console.log('[ToolContext] Opening tool modal for:', tool.name);
     
     // If user is on free plan and has no remaining uses, show limit modal
-    if (userProfile?.plan === 'free' && usageLimit?.remainingUses === 0) {
+    if (userProfile?.plan === PLAN.FREE && usageLimit?.remainingUses === 0) {
       console.log('[ToolContext] No remaining uses, showing limit modal');
       setShowUsageLimitModal(true);
       return;
@@ -65,7 +66,7 @@ export function ToolProvider({ children }: { children: React.ReactNode }) {
       console.log('[ToolContext] Starting generation process');
       
       // If user is on free plan, track usage immediately
-      if (userProfile?.plan === 'free' && selectedTool) {
+      if (userProfile?.plan === PLAN.FREE && selectedTool) {
         console.log('[ToolContext] Free plan user, tracking usage');
         try {
           // Track usage first

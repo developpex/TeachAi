@@ -1,27 +1,26 @@
-import React from 'react';
 import { X } from 'lucide-react';
-import type { Tool, OpenAIResponse } from '../types';
-import { Message } from './openai/Message';
-import { MessageInput } from './openai/MessageInput';
-import { LoadingIndicator } from './openai/LoadingIndicator';
-import { useOpenAIModal } from '../hooks/useOpenAIModal';
-import { useMessageExport } from '../hooks/useMessageExport';
+import type { Tool } from '../../types';
+import { Message } from './Message.tsx';
+import { MessageInput } from './MessageInput.tsx';
+import { LoadingIndicator } from './LoadingIndicator.tsx';
+import { useAIModal } from '../../hooks/useAIModal.ts';
+import { useMessageExport } from '../../hooks/useMessageExport.ts';
 
-interface OpenAIModalProps {
+interface AIModalProps {
   isOpen: boolean;
   onClose: () => void;
-  response: OpenAIResponse | null;
+  response: string | null;
   onSendFollowUp: (prompt: string) => Promise<void>;
   tool: Tool;
 }
 
-export function OpenAIModal({
+export function AIModal({
   isOpen,
   onClose,
   response,
   onSendFollowUp,
   tool
-}: OpenAIModalProps) {
+}: AIModalProps) {
   const {
     followUpPrompt,
     setFollowUpPrompt,
@@ -30,10 +29,9 @@ export function OpenAIModal({
     showExportMenu,
     setShowExportMenu,
     copiedMessageId,
-    setCopiedMessageId,
     chatContainerRef,
     handleSubmit
-  } = useOpenAIModal(response, onSendFollowUp, tool);
+  } = useAIModal(response, onSendFollowUp, tool);
 
   const {
     handleCopyMessage,

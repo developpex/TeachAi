@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useTools } from './useTools';
-import type { Tool } from '../types';
 
 export function useToolsPage() {
   const {

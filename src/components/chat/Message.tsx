@@ -1,4 +1,3 @@
-import React from 'react';
 import { formatTimeAgo } from '../../utils/formatters';
 import type { ChatMessage } from '../../types';
 import { useAuth } from '../../context/AuthContext';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, UserPlus } from 'lucide-react';
 import { useAdmin } from '../../hooks/useAdmin';
@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import type { User, School } from '../../types/admin';
 import { AddUserModal } from '../../components/admin/AddUserModal';
 import { UserList } from '../../components/admin/UserList';
+import {ROLE} from "../../utils/constants.ts";
 
 export function SchoolAdmin() {
   const { role, loading, adminService } = useAdmin();
@@ -18,7 +19,7 @@ export function SchoolAdmin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && role !== 'admin') {
+    if (!loading && role !== ROLE.ADMIN) {
       console.log('User is not an admin, redirecting...', { role });
       navigate('/not-authorized');
       return;
@@ -78,7 +79,7 @@ export function SchoolAdmin() {
       }
     };
 
-    if (user && role === 'admin') {
+    if (user && role === ROLE.ADMIN) {
       console.log('User is admin, fetching school data...');
       fetchSchoolData();
     }

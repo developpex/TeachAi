@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FirebaseError } from 'firebase/app';
-import { PublicNavigation } from '../components/PublicNavigation';
+import { PublicNavigation } from '../components/navigation/PublicNavigation.tsx';
+import {PLAN} from "../utils/constants.ts";
 
 export function SignUpTrial() {
   const [email, setEmail] = useState('');
@@ -50,7 +51,7 @@ export function SignUpTrial() {
       await saveUserProfile(user.uid, {
         fullName: user.email?.split('@')[0] || 'User',
         title: 'Teacher',
-        plan: 'plus',
+        plan: PLAN.PLUS,
         isTrialActive: true,
         trialStartDate,
         trialEndDate,
@@ -77,7 +78,7 @@ export function SignUpTrial() {
       await saveUserProfile(result.user.uid, {
         fullName: result.user.displayName || result.user.email?.split('@')[0] || 'User',
         title: 'Teacher',
-        plan: 'plus',
+        plan: PLAN.PLUS,
         isTrialActive: true,
         trialStartDate,
         trialEndDate,

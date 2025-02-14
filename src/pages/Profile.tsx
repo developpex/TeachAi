@@ -1,6 +1,5 @@
-import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { ProfileNavigation } from '../components/ProfileNavigation';
+import { ProfileNavigation } from '../components/navigation/ProfileNavigation.tsx';
 import { PersonalInfo } from '../components/profile/sections/personal/PersonalInfo';
 import { AccountSettings } from '../components/profile/sections/account/AccountSettings';
 import { SecuritySettings } from '../components/profile/sections/security/SecuritySettings';
@@ -9,7 +8,7 @@ import { ActivityHistory } from '../components/profile/sections/activity/Activit
 import { NotificationSettings } from '../components/profile/sections/notifications/NotificationSettings';
 import { PrivacySettings } from '../components/profile/sections/privacy/PrivacySettings';
 import { Support } from '../components/profile/sections/support/Support';
-import { Help } from '../pages/Help';
+import { Help } from '../components/profile/sections/help/Help.tsx';
 import { useProfile } from '../hooks/useProfile';
 
 export function Profile() {

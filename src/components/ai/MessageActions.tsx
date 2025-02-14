@@ -1,4 +1,3 @@
-import React from 'react';
 import { Copy, Check, Download, FileText, File } from 'lucide-react';
 
 interface MessageActionsProps {

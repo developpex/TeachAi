@@ -31,8 +31,8 @@ export interface CreateTicketData {
   username: string;
 }
 
-export interface GetTicketsResult {
-  tickets: SupportTicket[];
-  hasMore: boolean;
-  lastDoc?: any;
-}
+// export interface GetTicketsResult {
+//   tickets: SupportTicket[];
+//   hasMore: boolean;
+//   lastDoc?: any;
+// }

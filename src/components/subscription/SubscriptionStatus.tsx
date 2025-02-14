@@ -1,10 +1,10 @@
-import React from 'react';
-import { useAuth } from '../context/AuthContext';
-import { FreePlan } from './subscription/FreePlan';
-import { TrialPlan } from './subscription/TrialPlan';
-import { PlusPlan } from './subscription/PlusPlan';
-import { EnterprisePlan } from './subscription/EnterprisePlan';
-import { LoadingPlan } from './subscription/LoadingPlan';
+import { useAuth } from '../../context/AuthContext.tsx';
+import { FreePlan } from './FreePlan.tsx';
+import { TrialPlan } from './TrialPlan.tsx';
+import { PlusPlan } from './PlusPlan.tsx';
+import { EnterprisePlan } from './EnterprisePlan.tsx';
+import { LoadingPlan } from './LoadingPlan.tsx';
+import { ROLE, PLAN} from "../../utils/constants.ts";
 
 export function SubscriptionStatus() {
   const { userProfile } = useAuth();
@@ -14,11 +14,11 @@ export function SubscriptionStatus() {
   }
 
   // Check for enterprise plan first
-  if (userProfile.plan === 'enterprise' || userProfile.role === 'owner') {
+  if (userProfile.plan === PLAN.ENTERPRISE || userProfile.role === ROLE.OWNER) {
     return <EnterprisePlan />;
   }
 
-  if (userProfile.plan === 'free') {
+  if (userProfile.plan === PLAN.FREE) {
     return <FreePlan />;
   }
 
@@ -31,7 +31,7 @@ export function SubscriptionStatus() {
     );
   }
 
-  if (userProfile.plan === 'plus') {
+  if (userProfile.plan === PLAN.PLUS) {
     return <PlusPlan subscription={null} />;
   }
 

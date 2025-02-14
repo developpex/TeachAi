@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAccountSettings } from '../../../../hooks/useAccountSettings';
 import { EmailForm } from './EmailForm';
 import { PasswordForm } from './PasswordForm';

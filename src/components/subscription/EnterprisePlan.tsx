@@ -1,6 +1,6 @@
-import React from 'react';
 import { Star, Package } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import {ROLE} from "../../utils/constants.ts";
 
 export function EnterprisePlan() {
   const { userProfile } = useAuth();
@@ -27,7 +27,7 @@ export function EnterprisePlan() {
           <div>
             <h4 className="text-xl font-semibold text-primary-dark">Enterprise Plan</h4>
             <p className="text-primary">School-wide license</p>
-            {userProfile?.role === 'owner' && (
+            {userProfile?.role === ROLE.OWNER && (
               <p className="text-sm text-accent mt-1">Owner Account</p>
             )}
           </div>

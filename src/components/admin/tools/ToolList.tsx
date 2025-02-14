@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Edit2, Trash2, Search } from 'lucide-react';
 import type { Tool } from '../../../types';
+import {PLAN} from "../../../utils/constants.ts";
 
 interface ToolListProps {
   tools: Tool[];
@@ -61,9 +62,9 @@ export function ToolList({ tools, onEdit, onDelete }: ToolListProps) {
                       {tool.name}
                     </h3>
                     <span className={`px-2 py-1 text-xs rounded-full ${
-                      tool.category === 'free' 
+                      tool.category === PLAN.FREE 
                         ? 'bg-mint/20 text-primary'
-                        : tool.category === 'plus'
+                        : tool.category === PLAN.PLUS
                         ? 'bg-accent/20 text-accent-dark'
                         : 'bg-sage/20 text-primary-dark'
                     }`}>

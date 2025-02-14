@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { AdminService } from '../services/admin';
-import type { School, User } from '../types/admin';
+import {ROLE} from "../utils/constants.ts";
 
 export function useAdmin() {
   const { user } = useAuth();
@@ -37,8 +37,8 @@ export function useAdmin() {
 
   return {
     role,
-    isOwner: role === 'owner',
-    isAdmin: role === 'admin',
+    isOwner: role === ROLE.OWNER,
+    isAdmin: role === ROLE.ADMIN,
     loading,
     error,
     adminService

@@ -18,6 +18,7 @@ import {
 import { initializeApp, deleteApp } from 'firebase/app';
 import { generatePassword } from '../utils/auth';
 import type { AddUserData } from '../types/admin';
+import {PLAN} from "../utils/constants.ts";
 
 export class UserService {
   private static instance: UserService;
@@ -132,7 +133,7 @@ export class UserService {
           email,
           role,
           schoolId,
-          plan: 'enterprise',
+          plan: PLAN.ENTERPRISE,
           updatedAt: Timestamp.now()
         };
 
@@ -155,7 +156,7 @@ export class UserService {
         email,
         role,
         schoolId,
-        plan: 'enterprise',
+        plan: PLAN.ENTERPRISE,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now()
       };

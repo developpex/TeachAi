@@ -1,7 +1,6 @@
-import React from 'react';
-import { MessageContent } from './MessageContent';
-import { MessageActions } from './MessageActions';
-import type { Message as MessageType } from '../../types';
+import { MessageContent } from './MessageContent.tsx';
+import { MessageActions } from './MessageActions.tsx';
+import type { ChatMessage as MessageType } from '../../types';
 
 interface MessageProps {
   message: MessageType;

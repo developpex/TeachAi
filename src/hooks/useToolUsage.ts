@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { UsageService } from '../services/usage';
 import type { UsageLimit } from '../services/usage/types';
+import {PLAN} from "../utils/constants.ts";
 
 export function useToolUsage() {
   const [usageLimit, setUsageLimit] = useState<UsageLimit | null>(null);
@@ -11,7 +12,7 @@ export function useToolUsage() {
   const usageService = UsageService.getInstance();
 
   const refreshUsage = async () => {
-    if (userProfile?.plan !== 'free') return;
+    if (userProfile?.plan !== PLAN.FREE) return;
     
     try {
       setLoading(true);
@@ -27,7 +28,7 @@ export function useToolUsage() {
   };
 
   useEffect(() => {
-    if (userProfile?.plan === 'free') {
+    if (userProfile?.plan === PLAN.FREE) {
       // Set up real-time subscription
       const unsubscribe = usageService.subscribeToToolUsage((limit) => {
         setUsageLimit(limit);
@@ -44,7 +45,7 @@ export function useToolUsage() {
   }, [userProfile?.plan]);
 
   const trackUsage = async (toolId: string, toolName: string) => {
-    if (userProfile?.plan !== 'free') return true;
+    if (userProfile?.plan !== PLAN.FREE) return true;
 
     try {
       const canUse = await usageService.canUseTools();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building, Users, Plus } from 'lucide-react';
 import { useAdmin } from '../../hooks/useAdmin';
@@ -6,6 +6,7 @@ import { AdminService } from '../../services/admin';
 import type { School } from '../../types/admin';
 import { CreateSchoolModal } from '../../components/admin/CreateSchoolModal';
 import { SchoolList } from '../../components/admin/SchoolList';
+import {ROLE} from "../../utils/constants.ts";
 
 export function GlobalAdmin() {
   const { isOwner, loading: authLoading } = useAdmin();
@@ -39,7 +40,7 @@ export function GlobalAdmin() {
         let totalAdmins = 0;
         for (const school of schoolsData) {
           const users = await adminService.getSchoolUsers(school.id);
-          totalAdmins += users.filter(user => user.role === 'admin').length;
+          totalAdmins += users.filter(user => user.role === ROLE.ADMIN).length;
         }
         setAdminCount(totalAdmins);
       } catch (err) {
@@ -66,7 +67,7 @@ export function GlobalAdmin() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-primary-dark">Global Admin</h1>
+            <h1 className="text-3xl font-bold text-primary-dark">Admin</h1>
             <p className="mt-2 text-primary">Manage schools and administrators</p>
           </div>
           <button

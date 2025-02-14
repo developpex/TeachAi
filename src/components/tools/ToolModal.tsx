@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import type { Tool } from '../types';
-import { DeepseekAIService } from '../services/deepseek/deepseekai';
+import type { Tool } from '../../types';
+import { DeepseekAIService } from '../../services/deepseek/DeepseekAIService.ts';
 
 interface ToolModalProps {
   isOpen: boolean;

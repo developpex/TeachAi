@@ -1,4 +1,3 @@
-import React from 'react';
 import { AlertTriangle, ArrowRight, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { UsageLimit } from '../../services/usage/types';

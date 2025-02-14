@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, Mail, Bell, MessageSquare } from 'lucide-react';
 
 interface SecurityAlert {

@@ -1,20 +1,30 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  User,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithEmailAndPassword,
+import React, {createContext, useContext, useEffect, useState} from 'react';
+import {
   createUserWithEmailAndPassword,
-  signOut,
+  EmailAuthProvider,
+  GoogleAuthProvider,
   onAuthStateChanged,
+  reauthenticateWithCredential,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
   updateEmail,
   updatePassword,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  sendEmailVerification
+  User
 } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, Timestamp } from 'firebase/firestore';
-import { auth } from '../config/firebase';
+import {
+  arrayRemove,
+  arrayUnion,
+  doc,
+  getDoc,
+  getFirestore,
+  setDoc,
+  Timestamp,
+  updateDoc
+} from 'firebase/firestore';
+import {auth} from '../config/firebase';
+import {PLAN} from "../utils/constants.ts";
 
 interface UserProfile {
   fullName: string;
@@ -25,7 +35,6 @@ interface UserProfile {
   gender?: string;
   school?: string;
   language?: string;
-  photoURL?: string;
   favorites?: string[];
   plan: 'free' | 'plus' | 'enterprise';
   isTrialActive: boolean;
@@ -66,7 +75,7 @@ const DEFAULT_PROFILE: UserProfile = {
   school: '',
   language: 'en',
   favorites: [],
-  plan: 'free',
+  plan: PLAN.FREE,
   isTrialActive: false,
   startDate: new Date(),
   isProfileComplete: false
@@ -83,14 +92,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const now = new Date();
-    const trialEnd = profile.trialEndDate instanceof Date 
+    const trialEnd = profile.trialEndDate instanceof Date
       ? profile.trialEndDate 
       : profile.trialEndDate.toDate();
 
     if (now > trialEnd) {
       console.log('Trial has expired, updating profile...');
       const updates = {
-        plan: 'free',
+        plan: PLAN.FREE,
         isTrialActive: false,
         hadPreviousTrial: true,
         trialEndDate: null,
@@ -112,13 +121,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    return onAuthStateChanged(auth, async (user) => {
       setUser(user);
       if (user) {
         try {
           const userRef = doc(db, 'users', user.uid);
           const profileDoc = await getDoc(userRef);
-          
+
           if (profileDoc.exists()) {
             const data = profileDoc.data();
             let profile = {
@@ -127,16 +136,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               startDate: data.startDate?.toDate() || new Date(),
               trialStartDate: data.trialStartDate?.toDate() || null,
               trialEndDate: data.trialEndDate?.toDate() || null,
-              plan: data.plan || 'free',
+              plan: data.plan || PLAN.FREE,
               favorites: data.favorites || []
             } as UserProfile;
 
             profile = await checkTrialStatus(profile);
-            
+
             if (!data.email && user.email) {
-              await updateDoc(userRef, { email: user.email });
+              await updateDoc(userRef, {email: user.email});
             }
-            
+
             setUserProfile(profile);
           } else {
             const initialProfile: UserProfile = {
@@ -144,7 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               email: user.email || '',
               startDate: new Date()
             };
-            
+
             await setDoc(userRef, {
               ...initialProfile,
               startDate: Timestamp.fromDate(initialProfile.startDate)
@@ -159,8 +168,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setLoading(false);
     });
-
-    return unsubscribe;
   }, []);
 
   const signInWithGoogle = async () => {

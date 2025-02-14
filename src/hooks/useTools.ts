@@ -2,9 +2,11 @@ import { useState, useEffect, useMemo } from 'react';
 import { FirestoreService } from '../services/firestore';
 import { useAuth } from '../context/AuthContext';
 import type { Tool } from '../types';
+import { PLAN, TOOL_CATEGORIES } from '../utils/constants';
 
-type Category = 'all' | 'free' | 'plus' | 'enterprise';
-type ToolCategory = 'all' | 'lesson-planning' | 'subject-specific' | 'student-centered' | 'administrative' | 'cultural';
+
+type Category = typeof PLAN[keyof typeof PLAN] | 'all'
+type ToolCategory = typeof TOOL_CATEGORIES[number];
 
 interface UseToolsOptions {
   filterByCategory?: boolean;
@@ -17,7 +19,7 @@ export function useTools(options: UseToolsOptions = {}) {
   const [tools, setTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
-  const [selectedToolCategory, setSelectedToolCategory] = useState<ToolCategory>('all');
+  const [selectedToolCategory, setSelectedToolCategory] = useState<ToolCategory>('all' as ToolCategory);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -36,21 +38,14 @@ export function useTools(options: UseToolsOptions = {}) {
     isFavorite: userProfile?.favorites?.includes(tool.id) || false
   });
 
-  const userPlan = userProfile?.plan || 'free';
+  const userPlan = userProfile?.plan || PLAN.FREE;
   const isTrialActive = userProfile?.isTrialActive || false;
 
   const availableTools = useMemo(() => {
     return tools.filter(tool => {
-      // Show all free tools
-      if (tool.category === 'free') return true;
-      
-      // If user has enterprise plan, show all tools
-      if (userPlan === 'enterprise') return true;
-      
-      // If user has an active trial or plus plan, show plus tools
-      if (tool.category === 'plus' && (userPlan === 'plus' || isTrialActive)) return true;
-      
-      return false;
+      if (tool.category === PLAN.FREE) return true;
+      if (userPlan === PLAN.ENTERPRISE) return true;
+      return tool.category === PLAN.PLUS && (userPlan === PLAN.PLUS || isTrialActive);
     });
   }, [tools, userPlan, isTrialActive]);
 
@@ -58,7 +53,7 @@ export function useTools(options: UseToolsOptions = {}) {
     let filtered = availableTools;
 
     if (options.filterByCategory) {
-      filtered = filtered.filter(tool => 
+      filtered = filtered.filter(tool =>
         selectedCategory === 'all' || tool.category === selectedCategory
       );
     }
@@ -80,30 +75,29 @@ export function useTools(options: UseToolsOptions = {}) {
   }, [availableTools, selectedCategory, selectedToolCategory, searchQuery, options]);
 
   const categorizedTools = useMemo(() => {
-    const filtered = selectedCategory === 'all' ? filteredTools : filteredTools.filter(tool => tool.category === selectedCategory);
-    return {
-      free: filtered.filter(tool => tool.category === 'free'),
-      plus: filtered.filter(tool => tool.category === 'plus'),
-      enterprise: filtered.filter(tool => tool.category === 'enterprise')
-    };
+    const filtered = selectedCategory === 'all'
+        ? filteredTools
+        : filteredTools.filter(tool => tool.category === selectedCategory);
+
+    return Object.values(PLAN).reduce((acc, tier) => {
+      acc[tier] = filtered.filter(tool => tool.category === tier);
+      return acc;
+    }, {} as Record<Category, Tool[]>);
   }, [filteredTools, selectedCategory]);
 
-  const favoriteTools = useMemo(() => 
+
+  const favoriteTools = useMemo(() =>
     filteredTools.filter(tool => userProfile?.favorites?.includes(tool.id)),
     [filteredTools, userProfile?.favorites]
   );
 
-  const otherTools = useMemo(() => 
+  const otherTools = useMemo(() =>
     filteredTools.filter(tool => !userProfile?.favorites?.includes(tool.id)),
     [filteredTools, userProfile?.favorites]
   );
 
   const availableCategories = useMemo(() => {
-    const categories = ['all'];
-    if (categorizedTools.free.length > 0) categories.push('free');
-    if (categorizedTools.plus.length > 0) categories.push('plus');
-    if (categorizedTools.enterprise.length > 0) categories.push('enterprise');
-    return categories;
+    return ['all', ...Object.values(PLAN).filter(tier => categorizedTools[tier]?.length > 0)];
   }, [categorizedTools]);
 
   return {

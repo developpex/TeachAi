@@ -1,4 +1,3 @@
-import React from 'react';
 import { X, Star } from 'lucide-react';
 
 interface TrialConfirmationModalProps {

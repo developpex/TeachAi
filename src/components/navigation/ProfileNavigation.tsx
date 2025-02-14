@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   User,
@@ -11,7 +11,6 @@ import {
   Lock,
   ChevronDown,
   ChevronUp,
-  Book,
   HelpCircle
 } from 'lucide-react';
 

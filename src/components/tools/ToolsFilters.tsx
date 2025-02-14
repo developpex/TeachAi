@@ -1,5 +1,5 @@
-import React from 'react';
 import { Filter, ChevronDown } from 'lucide-react';
+import {TOOL_CATEGORIES} from './../../utils/constants.ts'
 
 interface ToolsFiltersProps {
   availableCategories: string[];
@@ -53,7 +53,7 @@ export function ToolsFilters({
 
           {isDropdownOpen && (
             <div className="absolute z-50 mt-2 w-64 bg-white rounded-lg shadow-lg border border-sage/10 py-2">
-              {(['all', 'lesson-planning', 'subject-specific', 'student-centered', 'administrative', 'cultural'] as const).map((category) => (
+              {(TOOL_CATEGORIES).map((category) => (
                 <button
                   key={category}
                   onClick={() => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Book, Sparkles, Users, PenTool as Tool, MessageSquare } from 'lucide-react';
 
 export function GettingStarted() {

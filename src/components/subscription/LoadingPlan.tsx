@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function LoadingPlan() {
   return (
     <div className="bg-white rounded-lg shadow-soft p-6 border border-sage/10">

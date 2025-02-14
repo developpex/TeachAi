@@ -1,7 +1,5 @@
-import React from 'react';
 import { Check } from 'lucide-react';
-import type { PricingTier } from '../types';
-import { useNavigate } from 'react-router-dom';
+import type { PricingTier } from '../../types';
 
 interface PricingCardProps {
   tier: PricingTier;
@@ -9,8 +7,6 @@ interface PricingCardProps {
 }
 
 export function PricingCard({ tier, onAction }: PricingCardProps) {
-  const navigate = useNavigate();
-
   const handleAction = () => {
     onAction(tier);
   };

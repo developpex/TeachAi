@@ -11,6 +11,7 @@ import {
   where
 } from 'firebase/firestore';
 import type { Tool } from '../types';
+import {PLAN} from "../utils/constants.ts";
 
 export class ToolService {
   private static instance: ToolService;
@@ -59,7 +60,7 @@ export class ToolService {
       throw new Error('Tool description is required and must be a string');
     }
 
-    if (!data.category || !['free', 'plus', 'enterprise'].includes(data.category)) {
+    if (!data.category || ![PLAN.FREE, PLAN.PLUS, PLAN.ENTERPRISE].includes(data.category)) {
       throw new Error('Invalid tool category');
     }
 

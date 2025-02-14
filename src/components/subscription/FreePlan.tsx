@@ -1,11 +1,8 @@
-import React from 'react';
 import { Shield, Package } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { SubscribeButton } from './SubscribeButton';
 
 export function FreePlan() {
-  const navigate = useNavigate();
   const { userProfile, updateUserProfile } = useAuth();
 
   const handleStartTrial = async () => {

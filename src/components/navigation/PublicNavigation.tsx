@@ -1,10 +1,7 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 
 export function PublicNavigation() {
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleGetStarted = () => {

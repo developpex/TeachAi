@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Plus, Minus } from 'lucide-react';
 import type { Tool, ToolField } from '../../../types';
+import {TOOL_CATEGORIES} from "../../../utils/constants.ts";
 
 interface EditToolModalProps {
   tool: Tool;
@@ -164,11 +165,9 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
                   onChange={(e) => setToolCategory(e.target.value)}
                   className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
                 >
-                  <option value="lesson-planning">Lesson Planning</option>
-                  <option value="subject-specific">Subject Specific</option>
-                  <option value="student-centered">Student Centered</option>
-                  <option value="administrative">Administrative</option>
-                  <option value="cultural">Cultural</option>
+                  {(TOOL_CATEGORIES.filter(category => category !== 'all').map((toolCategory) => (
+                      <option key={toolCategory} value={toolCategory}>{toolCategory}</option>
+                  )))}
                 </select>
               </div>
             </div>

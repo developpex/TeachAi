@@ -1,8 +1,8 @@
-import React from 'react';
 import { Star, Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { SubscriptionStatus } from '../SubscriptionStatus';
+import { SubscriptionStatus } from './SubscriptionStatus.tsx';
+import {PLAN, ROLE} from "../../utils/constants.ts";
 
 export function SubscriptionSettings() {
   const { userProfile } = useAuth();
@@ -28,8 +28,8 @@ export function SubscriptionSettings() {
   }
 
   // Check for enterprise plan or owner role
-  const isEnterprise = userProfile.plan === 'enterprise';
-  const isOwner = userProfile.role === 'owner';
+  const isEnterprise = userProfile.plan === PLAN.ENTERPRISE;
+  const isOwner = userProfile.role === ROLE.OWNER;
 
   if (isEnterprise || isOwner) {
     return (
@@ -54,7 +54,7 @@ export function SubscriptionSettings() {
             <div>
               <h4 className="text-xl font-semibold text-primary-dark">Enterprise Plan</h4>
               <p className="text-primary">School-wide license</p>
-              {userProfile.role === 'owner' && (
+              {userProfile.role === ROLE.OWNER && (
                 <p className="text-sm text-accent mt-1">Owner Account</p>
               )}
             </div>

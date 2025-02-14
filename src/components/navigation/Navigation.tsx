@@ -16,8 +16,8 @@ import {
   TicketCheck,
   Settings
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { useAdmin } from '../hooks/useAdmin';
+import { useAuth } from '../../context/AuthContext.tsx';
+import { useAdmin } from '../../hooks/useAdmin.ts';
 
 interface NavLinkProps {
   to: string;
@@ -62,7 +62,7 @@ export function Navigation({ onToggle }: NavigationProps) {
   const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
   const path = location.pathname === '/' ? '/dashboard' : location.pathname;
-  const { user, userProfile, logout } = useAuth();
+  const { user, logout } = useAuth();
   const { isOwner, isAdmin } = useAdmin();
 
   const navigationItems = [
@@ -92,7 +92,7 @@ export function Navigation({ onToggle }: NavigationProps) {
     },
     ...(isOwner ? [
       {
-        title: 'Global Admin',
+        title: 'Admin',
         path: '/admin',
         icon: Shield,
         description: 'Global administration'

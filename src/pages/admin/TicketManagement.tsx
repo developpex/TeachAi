@@ -5,23 +5,7 @@ import { useAdmin } from '../../hooks/useAdmin';
 import { SupportService, SupportTicket } from '../../services/support';
 import { TicketList } from '../../components/admin/tickets/TicketList';
 import { TicketModal } from '../../components/shared/TicketModal';
-
-export const TICKET_CATEGORIES = {
-  'technical': 'Technical Issues',
-  'billing': 'Billing & Subscription',
-  'account': 'Account & Security',
-  'feature': 'Feature Requests',
-  'bug': 'Bug Reports',
-  'other': 'Other'
-} as const;
-
-export const TICKET_STATUSES = {
-  'open': 'Open',
-  'in_progress': 'In Progress',
-  'resolved': 'Resolved',
-  'cancelled': 'Cancelled',
-  'closed': 'Closed'
-} as const;
+import { TICKET_CATEGORIES, TICKET_STATUSES} from '../../utils/constants.ts'
 
 export function TicketManagement() {
   const [tickets, setTickets] = useState<SupportTicket[]>([]);

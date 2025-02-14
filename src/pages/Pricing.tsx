@@ -1,68 +1,25 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PricingCard } from '../components/PricingCard';
-import { PublicNavigation } from '../components/PublicNavigation';
-import { ContactSalesModal } from '../components/ContactSalesModal';
-import { useAuth } from '../context/AuthContext';
+import { PricingCard } from '../components/pricing/PricingCard.tsx';
+import { PublicNavigation } from '../components/navigation/PublicNavigation.tsx';
+import { ContactSalesModal } from '../components/pricing/ContactSalesModal.tsx';
+import {PLAN, PRICING_TIERS} from '../utils/constants.ts'
 import type { PricingTier } from '../types';
 
 export function Pricing() {
   const [showContactModal, setShowContactModal] = useState(false);
   const navigate = useNavigate();
-  const { user } = useAuth();
-
-  const pricingTiers: PricingTier[] = [
-    {
-      name: 'Free',
-      price: '0',
-      description: 'Perfect for trying out our basic AI tools',
-      features: [
-        'Access to Lesson Plan Generator',
-        'Basic vocabulary lists',
-        'Limited text writing assistance',
-        'Email support'
-      ],
-      buttonText: 'Get Started'
-    },
-    {
-      name: 'Plus',
-      price: '29',
-      description: 'Unlock all features for individual teachers',
-      features: [
-        'All Free features',
-        'Advanced lesson planning',
-        'Custom vocabulary exercises',
-        'Unlimited text writing',
-        'Priority support'
-      ],
-      buttonText: 'Start Free Trial',
-      recommended: true
-    },
-    {
-      name: 'Enterprise',
-      price: '99',
-      description: 'Complete solution for schools and institutions',
-      features: [
-        'All Plus features',
-        'School-wide deployment',
-        'Admin dashboard',
-        'Custom integrations',
-        'Training sessions',
-        '24/7 dedicated support'
-      ],
-      buttonText: 'Contact Sales'
-    }
-  ];
+  const pricingTiers: PricingTier[] = PRICING_TIERS;
 
   const handlePricingAction = (tier: PricingTier) => {
     switch (tier.name.toLowerCase()) {
-      case 'free':
+      case PLAN.FREE:
         navigate('/signup');
         break;
-      case 'plus':
+      case PLAN.PLUS:
         navigate('/signup-trial');
         break;
-      case 'enterprise':
+      case PLAN.ENTERPRISE:
         setShowContactModal(true);
         break;
     }

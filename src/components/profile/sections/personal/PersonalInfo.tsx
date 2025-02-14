@@ -1,4 +1,3 @@
-import React from 'react';
 import { usePersonalInfo } from '../../../../hooks/usePersonalInfo';
 import { ProfileForm } from './ProfileForm';
 import { ProfileActions } from './ProfileActions';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Smartphone, LogOut } from 'lucide-react';
 import { useAuth } from '../../../../context/AuthContext';
 import { getFirestore, collection, query, where, onSnapshot, deleteDoc, addDoc, serverTimestamp, doc, getDocs, updateDoc } from 'firebase/firestore';

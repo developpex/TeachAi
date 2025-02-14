@@ -1,4 +1,4 @@
-import React from 'react';
+import {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../hooks/useAdmin';
 import { ToolList } from '../../components/admin/tools/ToolList';
@@ -8,8 +8,8 @@ import { useManageTools } from '../../hooks/useManageTools';
 import type { Tool } from '../../types';
 
 export function ManageTools() {
-  const [showCreateModal, setShowCreateModal] = React.useState(false);
-  const [selectedTool, setSelectedTool] = React.useState<Tool | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const { isOwner, loading: authLoading } = useAdmin();
   const navigate = useNavigate();
   const {
@@ -22,7 +22,7 @@ export function ManageTools() {
     deleteTool
   } = useManageTools();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!authLoading && !isOwner) {
       navigate('/not-authorized');
     }
