@@ -3,14 +3,18 @@ import { FreePlan } from './FreePlan.tsx';
 import { TrialPlan } from './TrialPlan.tsx';
 import { PlusPlan } from './PlusPlan.tsx';
 import { EnterprisePlan } from './EnterprisePlan.tsx';
-import { LoadingPlan } from './LoadingPlan.tsx';
+import { LoadingSpinner } from '../shared/LoadingSpinner.tsx';
 import { ROLE, PLAN} from "../../utils/constants.ts";
 
 export function SubscriptionStatus() {
   const { userProfile } = useAuth();
 
   if (!userProfile) {
-    return <LoadingPlan />;
+    return (
+      <div className="bg-white dark:bg-dark-nav rounded-lg shadow-soft dark:shadow-dark-soft border border-sage/10 dark:border-dark-border p-8 flex justify-center">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   // Check for enterprise plan first

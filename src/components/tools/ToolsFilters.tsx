@@ -1,5 +1,5 @@
 import { Filter, ChevronDown } from 'lucide-react';
-import {TOOL_CATEGORIES} from './../../utils/constants.ts'
+import { TOOL_CATEGORIES } from '../../utils/constants';
 
 interface ToolsFiltersProps {
   availableCategories: string[];
@@ -33,7 +33,7 @@ export function ToolsFilters({
             className={`px-4 py-2 rounded-lg transition-all duration-300 ${
               selectedCategory === category
                 ? 'bg-accent text-white shadow-soft'
-                : 'bg-white text-primary hover:bg-mint/10'
+                : 'bg-white dark:bg-dark-nav text-primary dark:text-dark-text hover:bg-mint/10 dark:hover:bg-dark-surface'
             }`}
           >
             {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -44,7 +44,7 @@ export function ToolsFilters({
         <div className="relative">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center space-x-2 px-4 py-2 bg-white text-primary rounded-lg hover:bg-mint/10 transition-all duration-300"
+            className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-dark-nav text-primary dark:text-dark-text rounded-lg hover:bg-mint/10 dark:hover:bg-dark-surface transition-all duration-300"
           >
             <Filter className="h-5 w-5" />
             <span>{getToolCategoryLabel(selectedToolCategory)}</span>
@@ -52,7 +52,7 @@ export function ToolsFilters({
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute z-50 mt-2 w-64 bg-white rounded-lg shadow-lg border border-sage/10 py-2">
+            <div className="absolute z-50 mt-2 w-64 bg-white dark:bg-dark-nav rounded-lg shadow-lg border border-sage/10 dark:border-dark-border py-2">
               {(TOOL_CATEGORIES).map((category) => (
                 <button
                   key={category}
@@ -60,8 +60,10 @@ export function ToolsFilters({
                     setSelectedToolCategory(category);
                     setIsDropdownOpen(false);
                   }}
-                  className={`w-full text-left px-4 py-2 hover:bg-mint/10 transition-colors duration-300 ${
-                    selectedToolCategory === category ? 'bg-mint/20 text-primary-dark' : 'text-primary'
+                  className={`w-full text-left px-4 py-2 hover:bg-mint/10 dark:hover:bg-dark-surface transition-colors duration-300 ${
+                    selectedToolCategory === category 
+                      ? 'bg-mint/20 dark:bg-mint/10 text-primary-dark dark:text-dark-text' 
+                      : 'text-primary dark:text-dark-text-secondary'
                   }`}
                 >
                   {getToolCategoryLabel(category)}

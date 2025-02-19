@@ -23,13 +23,13 @@ export function AccountSettings() {
   } = useAccountSettings();
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
-      <div className="bg-white rounded-lg shadow-soft border border-sage/10 p-8">
-        <h2 className="text-2xl font-semibold text-primary-dark mb-6">Account Settings</h2>
+    <div className="space-y-6">
+      <div className="bg-white dark:bg-dark-nav rounded-lg shadow-soft dark:shadow-dark-soft border border-sage/10 dark:border-dark-border p-8">
+        <h2 className="text-2xl font-semibold text-primary-dark dark:text-dark-text mb-6">Account Settings</h2>
         
         {(message || error) && (
           <div className={`p-4 rounded-lg mb-6 flex items-start space-x-3 ${
-            message ? 'bg-mint/20 text-primary' : 'bg-coral/20 text-accent-dark'
+            message ? 'bg-mint/20 text-primary dark:text-dark-text' : 'bg-coral/20 text-accent-dark'
           }`}>
             <span>{message || error}</span>
           </div>

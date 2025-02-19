@@ -1,111 +1,69 @@
 import React, { useState, useContext, createContext } from 'react';
-import { ToolModal } from '../components/tools/ToolModal.tsx';
-import { AIModal } from '../components/ai/AIModal.tsx';
-import { UsageLimitModal } from '../components/tools/UsageLimitModal';
+import { useNavigate } from 'react-router-dom';
 import { useToolUsage } from '../hooks/useToolUsage';
 import { useAuth } from './AuthContext';
 import type { Tool } from '../types';
-import { DeepseekAIService } from '../services/deepseek/DeepseekAIService.ts';
-import {PLAN} from "../utils/constants.ts";
+import { MockAIService } from '../services/deepseek/MockAIService';
+import { PLAN } from "../utils/constants";
 
 interface ToolContextType {
-  selectedTool: Tool | null;
-  isToolModalOpen: boolean;
-  isAIModalOpen: boolean;
-  openToolModal: (tool: Tool) => void;
-  closeToolModal: () => void;
-  closeAIModal: () => void;
-  handleGenerate: (response: string | null) => void;
+  handleGenerate: (prompt: string | null) => Promise<string | null>;
   handleFollowUp: (prompt: string) => Promise<void>;
+  openTool: (tool: Tool) => void;
 }
 
 const ToolContext = createContext<ToolContextType | undefined>(undefined);
 
 export function ToolProvider({ children }: { children: React.ReactNode }) {
-  const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
-  const [isToolModalOpen, setIsToolModalOpen] = useState(false);
-  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
-  const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
-  const [aiResponse, setAIResponse] = useState<string | null>(null);
+  const navigate = useNavigate();
   const { userProfile } = useAuth();
   const { usageLimit, trackUsage, refreshUsage } = useToolUsage();
-  const deepseekService = DeepseekAIService.getInstance();
+  const mockAIService = MockAIService.getInstance();
 
-  const openToolModal = (tool: Tool) => {
-    console.log('[ToolContext] Opening tool modal for:', tool.name);
+  const openTool = (tool: Tool) => {
+    console.log('[ToolContext] Opening tool:', tool.name);
     
     // If user is on free plan and has no remaining uses, show limit modal
     if (userProfile?.plan === PLAN.FREE && usageLimit?.remainingUses === 0) {
-      console.log('[ToolContext] No remaining uses, showing limit modal');
-      setShowUsageLimitModal(true);
+      console.log('[ToolContext] No remaining uses');
       return;
     }
     
-    setSelectedTool(tool);
-    setIsToolModalOpen(true);
+    navigate(`/tools/${tool.navigation}`);
   };
 
-  const closeToolModal = () => {
-    console.log('[ToolContext] Closing tool modal');
-    setIsToolModalOpen(false);
-  };
+  const handleGenerate = async (prompt: string | null): Promise<string | null> => {
+    if (!prompt) return null;
 
-  const closeAIModal = () => {
-    console.log('[ToolContext] Closing AI modal');
-    setIsAIModalOpen(false);
-    setAIResponse(null);
-    setSelectedTool(null);
-    deepseekService.clearConversation();
-  };
-
-  const handleGenerate = async (response: string | null) => {
-    console.log('[ToolContext] handleGenerate called with response:', !!response);
-    
-    // If response is null, it means we're starting generation
-    if (!response) {
-      console.log('[ToolContext] Starting generation process');
-      
+    try {
       // If user is on free plan, track usage immediately
-      if (userProfile?.plan === PLAN.FREE && selectedTool) {
+      if (userProfile?.plan === PLAN.FREE) {
         console.log('[ToolContext] Free plan user, tracking usage');
-        try {
-          // Track usage first
-          const canProceed = await trackUsage(selectedTool.id, selectedTool.name);
-          console.log('[ToolContext] Usage tracked, can proceed:', canProceed);
-          
-          if (!canProceed) {
-            console.log('[ToolContext] Cannot proceed, showing limit modal');
-            setShowUsageLimitModal(true);
-            setIsToolModalOpen(false);
-            return;
-          }
-          
-          // Refresh usage limit after tracking
-          await refreshUsage();
-        } catch (error) {
-          console.error('[ToolContext] Error tracking tool usage:', error);
-          setIsToolModalOpen(false);
-          return;
+        const canProceed = await trackUsage('tool-id', 'tool-name');
+        console.log('[ToolContext] Usage tracked, can proceed:', canProceed);
+        
+        if (!canProceed) {
+          console.log('[ToolContext] Cannot proceed');
+          return null;
         }
+        
+        // Refresh usage limit after tracking
+        await refreshUsage();
       }
-      
-      // Close tool modal and show AI modal
-      setIsToolModalOpen(false);
-      setAIResponse(null);
-      setIsAIModalOpen(true);
-      return;
-    }
 
-    // Show the response
-    console.log('[ToolContext] Showing AI response');
-    setAIResponse(response);
+      const response = await mockAIService.generateResponse(prompt);
+      return response;
+    } catch (error) {
+      console.error('[ToolContext] Error generating response:', error);
+      return null;
+    }
   };
 
   const handleFollowUp = async (prompt: string) => {
     console.log('[ToolContext] Handling follow-up prompt');
     try {
-      const response = await deepseekService.generateResponse(prompt);
-      setAIResponse(response);
+      const response = await mockAIService.generateResponse(prompt);
+      return response;
     } catch (error) {
       console.error('[ToolContext] Error sending follow-up:', error);
     }
@@ -114,41 +72,12 @@ export function ToolProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToolContext.Provider 
       value={{ 
-        selectedTool,
-        isToolModalOpen,
-        isAIModalOpen,
-        openToolModal,
-        closeToolModal,
-        closeAIModal,
         handleGenerate,
-        handleFollowUp
+        handleFollowUp,
+        openTool
       }}
     >
       {children}
-      {selectedTool && (
-        <ToolModal
-          isOpen={isToolModalOpen}
-          onClose={closeToolModal}
-          tool={selectedTool}
-          onGenerate={handleGenerate}
-        />
-      )}
-      {selectedTool && (
-        <AIModal
-          isOpen={isAIModalOpen}
-          onClose={closeAIModal}
-          response={aiResponse}
-          onSendFollowUp={handleFollowUp}
-          tool={selectedTool}
-        />
-      )}
-      {usageLimit && (
-        <UsageLimitModal
-          isOpen={showUsageLimitModal}
-          onClose={() => setShowUsageLimitModal(false)}
-          usageLimit={usageLimit}
-        />
-      )}
     </ToolContext.Provider>
   );
 }

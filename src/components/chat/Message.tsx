@@ -31,10 +31,10 @@ export function Message({ message }: MessageProps) {
       
       <div className={`flex flex-col ${isCurrentUser ? 'items-end' : 'items-start'}`}>
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-primary-dark">
+          <span className="text-sm font-medium text-primary-dark dark:text-dark-text">
             {message.userDisplayName}
           </span>
-          <span className="text-xs text-primary">
+          <span className="text-xs text-primary dark:text-dark-text-secondary">
             {formatTimeAgo(message.createdAt)}
           </span>
         </div>
@@ -42,7 +42,7 @@ export function Message({ message }: MessageProps) {
         <div className={`mt-1 px-4 py-2 rounded-lg max-w-lg ${
           isCurrentUser
             ? 'bg-accent text-white'
-            : 'bg-sage/10 text-primary-dark'
+            : 'bg-sage/10 dark:bg-dark-surface text-primary-dark dark:text-dark-text'
         }`}>
           {message.content}
         </div>

@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import type { Tool } from '../types';
 import { PLAN, TOOL_CATEGORIES } from '../utils/constants';
 
-
 type Category = typeof PLAN[keyof typeof PLAN] | 'all'
 type ToolCategory = typeof TOOL_CATEGORIES[number];
 
@@ -18,25 +17,42 @@ export function useTools(options: UseToolsOptions = {}) {
   const { userProfile } = useAuth();
   const [tools, setTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
   const [selectedToolCategory, setSelectedToolCategory] = useState<ToolCategory>('all' as ToolCategory);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchTools = async () => {
-      const firestoreService = FirestoreService.getInstance();
-      const allTools = await firestoreService.getAllTools();
-      setTools(allTools);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const firestoreService = FirestoreService.getInstance();
+        const allTools = await firestoreService.getAllTools();
+        
+        if (mounted) {
+          setTools(allTools);
+          setError(null);
+        }
+      } catch (err) {
+        console.error('Error fetching tools:', err);
+        if (mounted) {
+          setError(err instanceof Error ? err.message : 'Failed to fetch tools');
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
     };
 
     fetchTools();
-  }, []);
 
-  const getToolWithFavoriteStatus = (tool: Tool) => ({
-    ...tool,
-    isFavorite: userProfile?.favorites?.includes(tool.id) || false
-  });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const userPlan = userProfile?.plan || PLAN.FREE;
   const isTrialActive = userProfile?.isTrialActive || false;
@@ -71,8 +87,11 @@ export function useTools(options: UseToolsOptions = {}) {
       );
     }
 
-    return filtered.map(getToolWithFavoriteStatus);
-  }, [availableTools, selectedCategory, selectedToolCategory, searchQuery, options]);
+    return filtered.map(tool => ({
+      ...tool,
+      isFavorite: userProfile?.favorites?.includes(tool.id) || false
+    }));
+  }, [availableTools, selectedCategory, selectedToolCategory, searchQuery, options, userProfile?.favorites]);
 
   const categorizedTools = useMemo(() => {
     const filtered = selectedCategory === 'all'
@@ -84,7 +103,6 @@ export function useTools(options: UseToolsOptions = {}) {
       return acc;
     }, {} as Record<Category, Tool[]>);
   }, [filteredTools, selectedCategory]);
-
 
   const favoriteTools = useMemo(() =>
     filteredTools.filter(tool => userProfile?.favorites?.includes(tool.id)),
@@ -102,6 +120,7 @@ export function useTools(options: UseToolsOptions = {}) {
 
   return {
     loading,
+    error,
     tools: filteredTools,
     favoriteTools,
     otherTools,

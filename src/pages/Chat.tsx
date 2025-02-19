@@ -20,7 +20,7 @@ export function Chat() {
   } = useChat();
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background dark:bg-dark-background">
       <ChatSidebar
         channels={channels}
         selectedChannel={selectedChannel}

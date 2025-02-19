@@ -23,22 +23,22 @@ export function EmailVerificationBanner() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 max-w-md bg-white rounded-lg shadow-lg border border-sage/10 p-4">
+    <div className="fixed bottom-4 right-4 max-w-md bg-white dark:bg-dark-nav rounded-lg shadow-lg dark:shadow-dark-soft border border-sage/10 dark:border-dark-border p-4">
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0">
           <AlertTriangle className="h-5 w-5 text-accent" />
         </div>
         <div className="flex-1">
           <div className="flex justify-between">
-            <h3 className="text-sm font-medium text-primary-dark">Email Verification Required</h3>
+            <h3 className="text-sm font-medium text-primary-dark dark:text-dark-text">Email Verification Required</h3>
             <button
               onClick={() => setIsVisible(false)}
-              className="text-primary hover:text-primary-dark"
+              className="text-primary dark:text-dark-text-secondary hover:text-primary-dark dark:hover:text-dark-text"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
-          <p className="mt-1 text-sm text-primary">
+          <p className="mt-1 text-sm text-primary dark:text-dark-text-secondary">
             Please verify your email address to access all features.
           </p>
           {message && (
@@ -49,7 +49,7 @@ export function EmailVerificationBanner() {
           <button
             onClick={handleResend}
             disabled={isResending}
-            className="mt-3 inline-flex items-center text-sm text-accent hover:text-accent-dark disabled:opacity-50"
+            className="mt-3 inline-flex items-center text-sm text-accent hover:text-accent-dark dark:text-accent dark:hover:text-accent-dark disabled:opacity-50"
           >
             <Mail className="h-4 w-4 mr-1" />
             {isResending ? 'Sending...' : 'Resend verification email'}

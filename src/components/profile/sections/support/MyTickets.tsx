@@ -3,7 +3,8 @@ import { MessageSquare, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { useMyTickets } from '../../../../hooks/useMyTickets';
 import { SupportService } from '../../../../services/support';
 import { TicketModal } from '../../../shared/TicketModal';
-import {ROLE, TICKET_CATEGORIES, TICKET_STATUSES} from "../../../../utils/constants.ts";
+import { ROLE, TICKET_CATEGORIES, TICKET_STATUSES } from "../../../../utils/constants.ts";
+import { LoadingSpinner } from '../../../shared/LoadingSpinner';
 
 interface MyTicketsProps {
   setTickets: (tickets: any[]) => void;
@@ -33,7 +34,6 @@ export function MyTickets({ setTickets }: MyTicketsProps) {
       setSending(true);
       await supportService.addUserReply(ticketId, message);
       setReply('');
-      // Refresh tickets to show new reply
       window.location.reload();
     } catch (err) {
       console.error('Error sending reply:', err);
@@ -45,9 +45,7 @@ export function MyTickets({ setTickets }: MyTicketsProps) {
   const handleStatusChange = async (ticketId: string, newStatus: string) => {
     try {
       await supportService.updateTicketStatus(ticketId, newStatus);
-      // Close the modal after status change
       setSelectedTicket(null);
-      // Update tickets list
       const updatedTickets = tickets.map(ticket => 
         ticket.id === ticketId ? { ...ticket, status: newStatus } : ticket
       );
@@ -64,7 +62,6 @@ export function MyTickets({ setTickets }: MyTicketsProps) {
     if (ticket.unreadByUser) {
       try {
         await supportService.markTicketReadByUser(ticketId);
-        // Update tickets state to remove unread indicator
         const updatedTickets = tickets.map(t => 
           t.id === ticketId ? { ...t, unreadByUser: false } : t
         );
@@ -78,35 +75,28 @@ export function MyTickets({ setTickets }: MyTicketsProps) {
 
   if (loading && tickets.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-soft border border-sage/10 p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-sage/10 rounded w-1/4"></div>
-          <div className="h-4 bg-sage/10 rounded w-1/2"></div>
-          <div className="space-y-3">
-            <div className="h-20 bg-sage/10 rounded"></div>
-            <div className="h-20 bg-sage/10 rounded"></div>
-          </div>
-        </div>
+      <div className="bg-white dark:bg-dark-nav rounded-lg shadow-soft dark:shadow-dark-soft border border-sage/10 dark:border-dark-border p-8 flex justify-center">
+        <LoadingSpinner />
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-soft border border-sage/10 p-8">
+    <div className="bg-white dark:bg-dark-nav rounded-lg shadow-soft dark:shadow-dark-soft border border-sage/10 dark:border-dark-border p-8">
       <div className="flex items-center space-x-3 mb-6">
-        <div className="p-2 bg-mint/20 rounded-lg">
-          <MessageSquare className="h-5 w-5 text-primary" />
+        <div className="p-2 bg-mint/20 dark:bg-mint/10 rounded-lg">
+          <MessageSquare className="h-5 w-5 text-accent" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-primary-dark">My Tickets</h3>
-          <p className="text-sm text-primary">View your support ticket history</p>
+          <h3 className="text-lg font-semibold text-primary-dark dark:text-dark-text">My Tickets</h3>
+          <p className="text-sm text-primary dark:text-dark-text-secondary">View your support ticket history</p>
         </div>
       </div>
 
       {/* Active Tickets */}
       <div className="space-y-4">
         {activeTickets.length === 0 ? (
-          <div className="text-center py-8 text-primary">
+          <div className="text-center py-8 text-primary dark:text-dark-text-secondary">
             No active tickets found
           </div>
         ) : (
@@ -123,10 +113,10 @@ export function MyTickets({ setTickets }: MyTicketsProps) {
 
       {/* Closed Tickets Section */}
       {closedTickets.length > 0 && (
-        <div className="mt-8 border-t border-sage/10 pt-6">
+        <div className="mt-8 border-t border-sage/10 dark:border-dark-border pt-6">
           <button
             onClick={() => setShowClosedTickets(!showClosedTickets)}
-            className="flex items-center space-x-2 text-primary hover:text-primary-dark"
+            className="flex items-center space-x-2 text-primary dark:text-dark-text-secondary hover:text-primary-dark dark:hover:text-dark-text"
           >
             {showClosedTickets ? (
               <ChevronUp className="h-4 w-4" />
@@ -180,10 +170,10 @@ function TicketCard({ ticket, onClick, TICKET_CATEGORIES }: {
   return (
     <div
       onClick={onClick}
-      className="p-4 border border-sage/20 rounded-lg hover:border-accent/50 cursor-pointer transition-all duration-200 hover:shadow-md relative"
+      className="p-4 border border-sage/20 dark:border-dark-border rounded-lg hover:border-accent/50 dark:hover:border-accent/50 cursor-pointer transition-all duration-200 hover:shadow-md dark:hover:shadow-dark-soft relative bg-white dark:bg-dark-surface"
     >
       {ticket.unreadByUser && ticket.replies?.some((r: any) => !r.read && r.author === ROLE.ADMIN) && (
-        <div className="absolute -top-2 -right-2 flex items-center justify-center min-w-[24px] h-6 px-1.5 bg-accent text-white text-xs font-medium rounded-full shadow-lg">
+        <div className="absolute -top-2 -right-2 flex items-center justify-center min-w-[24px] h-6 px-1.5 bg-accent text-white text-xs font-medium rounded-full shadow-lg dark:shadow-dark-soft">
           <MessageSquare className="h-3 w-3 mr-1" />
           {ticket.replies.filter((r: any) => !r.read && r.author === 'Admin').length}
         </div>
@@ -191,9 +181,9 @@ function TicketCard({ ticket, onClick, TICKET_CATEGORIES }: {
       
       <div className="flex justify-between items-start mb-2">
         <div>
-          <h4 className="text-xl font-bold text-primary-dark">{ticket.subject}</h4>
+          <h4 className="text-xl font-bold text-primary-dark dark:text-dark-text">{ticket.subject}</h4>
           <div className="flex items-center space-x-2">
-            <span className="text-primary-dark font-medium">Ticket</span>
+            <span className="text-primary-dark dark:text-dark-text font-medium">Ticket</span>
             <span className="text-accent font-mono">{ticket.ticketNumber}</span>
           </div>
         </div>
@@ -202,13 +192,13 @@ function TicketCard({ ticket, onClick, TICKET_CATEGORIES }: {
         </span>
       </div>
       
-      <p className="text-sm text-primary mb-3 line-clamp-2">{ticket.message}</p>
+      <p className="text-sm text-primary dark:text-dark-text-secondary mb-3 line-clamp-2">{ticket.message}</p>
       
       <div className="flex items-center justify-between">
-        <span className={`text-xs px-2 py-1 rounded-full bg-sage/10 text-primary`}>
+        <span className={`text-xs px-2 py-1 rounded-full bg-sage/10 dark:bg-dark-surface text-primary dark:text-dark-text`}>
           {TICKET_CATEGORIES[ticket.category]}
         </span>
-        <div className="flex items-center space-x-3 text-xs text-primary/80">
+        <div className="flex items-center space-x-3 text-xs text-primary/80 dark:text-dark-text-secondary/80">
           {ticket.replies && ticket.replies.length > 0 && (
             <div className="flex items-center">
               <MessageSquare className="h-3 w-3 mr-1" />
@@ -228,16 +218,16 @@ function TicketCard({ ticket, onClick, TICKET_CATEGORIES }: {
 function getStatusColor(status: string) {
   switch (status) {
     case 'open':
-      return 'bg-accent/20 text-accent';
+      return 'bg-accent/20 dark:bg-accent/10 text-accent';
     case 'in_progress':
-      return 'bg-mint/20 text-primary';
+      return 'bg-mint/20 dark:bg-mint/10 text-primary dark:text-dark-text';
     case 'resolved':
-      return 'bg-sage/20 text-primary-dark';
+      return 'bg-sage/20 dark:bg-sage/10 text-primary-dark dark:text-dark-text';
     case 'cancelled':
-      return 'bg-coral/20 text-accent-dark';
+      return 'bg-coral/20 dark:bg-coral/10 text-accent-dark';
     case 'closed':
-      return 'bg-sage/10 text-primary';
+      return 'bg-sage/10 dark:bg-sage/5 text-primary dark:text-dark-text';
     default:
-      return 'bg-sage/10 text-primary';
+      return 'bg-sage/10 dark:bg-sage/5 text-primary dark:text-dark-text';
   }
 }

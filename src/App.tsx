@@ -1,8 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { Navigation } from './components/navigation/Navigation.tsx';
 import { Dashboard } from './pages/Dashboard';
-import { Tools } from './pages/Tools';
+import { AllTools } from './pages/AllTools';
+import { ToolPage } from './pages/tools/ToolPage';
+import { History } from './pages/History';
 import { Chat } from './pages/Chat';
 import { Login } from './pages/Login';
 import { SignUpFree } from './pages/SignUpFree';
@@ -19,23 +22,14 @@ import { AuthProvider } from './context/AuthContext';
 import { ToolProvider } from './context/ToolContext';
 import { useAuth } from './context/AuthContext';
 import { EmailVerificationBanner } from './components/EmailVerificationBanner';
-
-// function PrivateRoute({ children }: { children: React.ReactNode }) {
-//   const { user, loading } = useAuth();
-//
-//   if (loading) {
-//     return <div>Loading...</div>;
-//   }
-//
-//   return user ? <>{children}</> : <Navigate to="/" />;
-// }
+import { ThemeProvider } from './context/ThemeContext';
 
 function AppContent() {
   const { user } = useAuth();
   const [isNavOpen, setIsNavOpen] = React.useState(true);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background dark:bg-dark-background text-primary dark:text-dark-text">
       {user ? (
         <div className="flex">
           <Navigation onToggle={(open) => setIsNavOpen(open)} />
@@ -43,7 +37,13 @@ function AppContent() {
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/tools" element={<Tools />} />
+              <Route path="/tools" element={<AllTools />} />
+              <Route path="/tools/:navigation" element={
+                <ToolProvider>
+                  <ToolPage />
+                </ToolProvider>
+              } />
+              <Route path="/history" element={<History />} />
               <Route path="/chat" element={<Chat />} />
               <Route path="/profile/*" element={<Profile />} />
               <Route path="/admin" element={<GlobalAdmin />} />
@@ -73,11 +73,13 @@ function AppContent() {
 export default function App() {
   return (
     <Router>
-      <AuthProvider>
-        <ToolProvider>
-          <AppContent />
-        </ToolProvider>
-      </AuthProvider>
+      <HelmetProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <AppContent />
+          </ThemeProvider>
+        </AuthProvider>
+      </HelmetProvider>
     </Router>
   );
 }

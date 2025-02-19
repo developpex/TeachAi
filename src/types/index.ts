@@ -34,6 +34,7 @@ export interface Channel {
 export interface Tool {
   id: string;
   name: string;
+  navigation: string;
   description: string;
   icon: string;
   category: 'free' | 'plus' | 'enterprise';

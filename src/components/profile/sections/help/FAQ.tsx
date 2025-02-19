@@ -40,33 +40,33 @@ export function FAQ() {
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow-soft border border-sage/10 p-8">
+    <div className="bg-white dark:bg-dark-nav rounded-lg shadow-soft dark:shadow-dark-soft border border-sage/10 dark:border-dark-border p-8">
       <div className="flex items-center space-x-3 mb-8">
-        <div className="p-2 bg-mint/20 rounded-lg">
-          <HelpCircle className="h-5 w-5 text-primary" />
+        <div className="p-2 bg-mint/20 dark:bg-mint/10 rounded-lg">
+          <HelpCircle className="h-5 w-5 text-accent" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-primary-dark">Frequently Asked Questions</h3>
-          <p className="text-sm text-primary">Find quick answers to common questions</p>
+          <h3 className="text-lg font-semibold text-primary-dark dark:text-dark-text">Frequently Asked Questions</h3>
+          <p className="text-sm text-primary dark:text-dark-text-secondary">Find quick answers to common questions</p>
         </div>
       </div>
 
       <div className="space-y-4">
         {faqs.map((faq, index) => (
-          <div key={index} className="border border-sage/20 rounded-lg">
+          <div key={index} className="border border-sage/20 dark:border-dark-border rounded-lg">
             <button
-              className="w-full flex items-center justify-between p-4 text-left hover:bg-sage/5 transition-colors duration-200"
+              className="w-full flex items-center justify-between p-4 text-left hover:bg-sage/5 dark:hover:bg-dark-surface transition-colors duration-200"
               onClick={() => setOpenQuestion(openQuestion === index ? null : index)}
             >
-              <span className="font-medium text-primary-dark">{faq.question}</span>
+              <span className="font-medium text-primary-dark dark:text-dark-text">{faq.question}</span>
               {openQuestion === index ? (
-                <ChevronUp className="h-5 w-5 text-primary flex-shrink-0" />
+                <ChevronUp className="h-5 w-5 text-primary dark:text-dark-text flex-shrink-0" />
               ) : (
-                <ChevronDown className="h-5 w-5 text-primary flex-shrink-0" />
+                <ChevronDown className="h-5 w-5 text-primary dark:text-dark-text flex-shrink-0" />
               )}
             </button>
             {openQuestion === index && (
-              <div className="px-4 pb-4 text-primary">
+              <div className="px-4 pb-4 text-primary dark:text-dark-text-secondary">
                 {faq.answer}
               </div>
             )}
