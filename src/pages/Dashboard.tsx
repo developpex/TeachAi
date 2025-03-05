@@ -6,6 +6,7 @@ import { WelcomeBanner } from '../components/dashboard/WelcomeBanner';
 import { UsageLimitBanner } from '../components/tools/UsageLimitBanner';
 import { useToolUsage } from '../hooks/useToolUsage';
 import { PLAN } from '../utils/constants';
+import {LoadingSpinner} from "../components/shared/LoadingSpinner.tsx";
 
 export function Dashboard() {
   const {
@@ -27,16 +28,17 @@ export function Dashboard() {
 
   if (loading || subscriptionLoading || loadingUsage) {
     return (
-      <div className="min-h-screen bg-background dark:bg-dark-background flex items-center justify-center">
-        <div className="text-primary dark:text-dark-text">Loading...</div>
-      </div>
+        <div
+            className="min-h-screen bg-background dark:bg-dark-background flex items-center justify-center">
+          <LoadingSpinner/>
+        </div>
     );
   }
 
   return (
-    <>
-      <div className="min-h-screen bg-background dark:bg-dark-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <>
+        <div className="min-h-screen bg-background dark:bg-dark-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <WelcomeBanner 
             userTitle={userProfile?.title}
             userPlan={userPlan}
