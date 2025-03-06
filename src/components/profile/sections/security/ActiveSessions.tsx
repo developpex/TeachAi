@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Smartphone, LogOut } from 'lucide-react';
 import { useAuth } from '../../../../context/AuthContext';
 import { getFirestore, collection, query, where, onSnapshot, deleteDoc, addDoc, serverTimestamp, doc, getDocs, updateDoc } from 'firebase/firestore';
+import { LoadingSpinner } from '../../../shared/LoadingSpinner';
 
 interface ActiveSession {
   id: string;
@@ -149,35 +150,28 @@ export function ActiveSessions() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-soft border border-sage/10 p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-sage/10 rounded w-1/4"></div>
-          <div className="h-4 bg-sage/10 rounded w-1/2"></div>
-          <div className="space-y-3">
-            <div className="h-20 bg-sage/10 rounded"></div>
-            <div className="h-20 bg-sage/10 rounded"></div>
-          </div>
-        </div>
+      <div className="bg-white dark:bg-dark-nav rounded-lg shadow-soft dark:shadow-dark-soft border border-sage/10 dark:border-dark-border p-8 flex justify-center">
+        <LoadingSpinner />
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-soft border border-sage/10 p-8">
+    <div className="bg-white dark:bg-dark-nav rounded-lg shadow-soft dark:shadow-dark-soft border border-sage/10 dark:border-dark-border p-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-mint/20 rounded-lg">
-            <Smartphone className="h-5 w-5 text-primary" />
+          <div className="p-2 bg-mint/20 dark:bg-mint/10 rounded-lg">
+            <Smartphone className="h-5 w-5 text-accent" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-primary-dark">Active Sessions</h3>
-            <p className="text-sm text-primary">Manage your active sessions across devices</p>
+            <h3 className="text-lg font-semibold text-primary-dark dark:text-dark-text">Active Sessions</h3>
+            <p className="text-sm text-primary dark:text-dark-text-secondary">Manage your active sessions across devices</p>
           </div>
         </div>
         {activeSessions.length > 1 && (
           <button 
             onClick={handleSignOutAll}
-            className="text-sm text-accent hover:text-accent-dark"
+            className="text-sm text-accent hover:text-accent-dark dark:text-accent dark:hover:text-accent-dark"
           >
             Sign out all devices
           </button>
@@ -192,29 +186,29 @@ export function ActiveSessions() {
 
       <div className="space-y-4">
         {activeSessions.length === 0 ? (
-          <div className="text-center py-8 text-primary">
+          <div className="text-center py-8 text-primary dark:text-dark-text-secondary">
             No active sessions found
           </div>
         ) : (
           activeSessions.map((session) => (
             <div
               key={session.id}
-              className="flex items-center justify-between p-4 rounded-lg border border-sage/20"
+              className="flex items-center justify-between p-4 rounded-lg border border-sage/20 dark:border-dark-border"
             >
               <div className="flex items-center space-x-4">
-                <div className="p-2 bg-mint/10 rounded-lg">
-                  <Smartphone className="h-5 w-5 text-primary" />
+                <div className="p-2 bg-mint/10 dark:bg-mint/5 rounded-lg">
+                  <Smartphone className="h-5 w-5 text-accent" />
                 </div>
                 <div>
-                  <p className="font-medium text-primary-dark">
+                  <p className="font-medium text-primary-dark dark:text-dark-text">
                     {session.browser} on {session.device}
                     {session.isCurrent && (
-                      <span className="ml-2 text-xs bg-mint/20 text-primary px-2 py-1 rounded-full">
+                      <span className="ml-2 text-xs bg-mint/20 dark:bg-mint/10 text-primary dark:text-dark-text px-2 py-1 rounded-full">
                         Current
                       </span>
                     )}
                   </p>
-                  <p className="text-sm text-primary">
+                  <p className="text-sm text-primary dark:text-dark-text-secondary">
                     {session.location} • {formatLastActive(session.lastActive)}
                   </p>
                 </div>
@@ -222,7 +216,7 @@ export function ActiveSessions() {
               {!session.isCurrent && (
                 <button
                   onClick={() => handleSignOut(session.id)}
-                  className="text-sm text-accent hover:text-accent-dark flex items-center"
+                  className="text-sm text-accent hover:text-accent-dark dark:text-accent dark:hover:text-accent-dark flex items-center"
                 >
                   <LogOut className="h-4 w-4 mr-1" />
                   Sign out
@@ -236,7 +230,6 @@ export function ActiveSessions() {
   );
 }
 
-// Helper functions
 function getBrowserInfo(userAgent: string): string {
   if (userAgent.includes('Firefox')) return 'Firefox';
   if (userAgent.includes('Chrome')) return 'Chrome';

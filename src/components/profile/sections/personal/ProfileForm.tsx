@@ -12,11 +12,14 @@ export function ProfileForm({ formData, handleChange, isEditing, saving }: Profi
   const { user } = useAuth();
   const [titlePrefix, titleName] = formData.title.split(' ');
 
+  const inputClasses = "w-full px-4 py-3 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text placeholder-primary/50 dark:placeholder-dark-text-secondary/50 focus:outline-none focus:ring-accent focus:border-accent disabled:bg-sage/5 dark:disabled:bg-dark-surface/50 bg-white dark:bg-dark-surface";
+  const selectClasses = "w-full px-4 py-3 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text focus:outline-none focus:ring-accent focus:border-accent disabled:bg-sage/5 dark:disabled:bg-dark-surface/50 bg-white dark:bg-dark-surface";
+
   return (
     <div className="space-y-4 w-full">
       {/* Full Name */}
       <div>
-        <label className="block text-sm font-medium text-primary-dark mb-1">
+        <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
           Full Name
         </label>
         <input
@@ -25,13 +28,13 @@ export function ProfileForm({ formData, handleChange, isEditing, saving }: Profi
           value={formData.fullName}
           onChange={handleChange}
           disabled={!isEditing || saving}
-          className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent disabled:bg-sage/5"
+          className={inputClasses}
         />
       </div>
 
       {/* Title */}
       <div>
-        <label className="block text-sm font-medium text-primary-dark mb-1">
+        <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
           Title
         </label>
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
@@ -45,7 +48,7 @@ export function ProfileForm({ formData, handleChange, isEditing, saving }: Profi
               } as React.ChangeEvent<HTMLInputElement>);
             }}
             disabled={!isEditing || saving}
-            className="w-full sm:w-24 px-3 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent disabled:bg-sage/5"
+            className={`w-full sm:w-24 ${selectClasses}`}
           >
             <option value="Ms.">Ms.</option>
             <option value="Mr.">Mr.</option>
@@ -62,28 +65,28 @@ export function ProfileForm({ formData, handleChange, isEditing, saving }: Profi
             }}
             disabled={!isEditing || saving}
             placeholder="e.g., Smith, Johnson"
-            className="w-full flex-1 px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent disabled:bg-sage/5"
+            className={`w-full flex-1 ${inputClasses}`}
           />
         </div>
       </div>
 
       {/* Email */}
       <div>
-        <label className="block text-sm font-medium text-primary-dark mb-1">
+        <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
           Email Address
         </label>
         <input
           type="email"
           value={user?.email || ''}
           disabled
-          className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg bg-sage/5"
+          className={`w-full px-4 py-3 border-2 border-sage/30 dark:border-dark-border rounded-lg bg-sage/5 dark:bg-dark-surface/50 text-primary-dark dark:text-dark-text`}
         />
       </div>
 
       {/* Two Column Grid for Remaining Fields */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-primary-dark mb-1">
+          <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
             Phone Number
           </label>
           <input
@@ -92,12 +95,12 @@ export function ProfileForm({ formData, handleChange, isEditing, saving }: Profi
             value={formData.phoneNumber}
             onChange={handleChange}
             disabled={!isEditing || saving}
-            className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent disabled:bg-sage/5"
+            className={inputClasses}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-primary-dark mb-1">
+          <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
             Gender
           </label>
           <select
@@ -105,7 +108,7 @@ export function ProfileForm({ formData, handleChange, isEditing, saving }: Profi
             value={formData.gender}
             onChange={handleChange}
             disabled={!isEditing || saving}
-            className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent disabled:bg-sage/5"
+            className={selectClasses}
           >
             <option value="">Select gender</option>
             <option value="male">Male</option>
@@ -116,7 +119,7 @@ export function ProfileForm({ formData, handleChange, isEditing, saving }: Profi
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-primary-dark mb-1">
+          <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
             Date of Birth
           </label>
           <input
@@ -125,12 +128,12 @@ export function ProfileForm({ formData, handleChange, isEditing, saving }: Profi
             value={formData.dateOfBirth}
             onChange={handleChange}
             disabled={!isEditing || saving}
-            className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent disabled:bg-sage/5"
+            className={inputClasses}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-primary-dark mb-1">
+          <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
             Language
           </label>
           <select
@@ -138,7 +141,7 @@ export function ProfileForm({ formData, handleChange, isEditing, saving }: Profi
             value={formData.language}
             onChange={handleChange}
             disabled={!isEditing || saving}
-            className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent disabled:bg-sage/5"
+            className={selectClasses}
           >
             <option value="en">English</option>
             <option value="es">Spanish</option>
@@ -148,7 +151,7 @@ export function ProfileForm({ formData, handleChange, isEditing, saving }: Profi
         </div>
 
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-primary-dark mb-1">
+          <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
             School
           </label>
           <input
@@ -157,7 +160,7 @@ export function ProfileForm({ formData, handleChange, isEditing, saving }: Profi
             value={formData.school}
             onChange={handleChange}
             disabled={!isEditing || saving}
-            className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent disabled:bg-sage/5"
+            className={inputClasses}
           />
         </div>
       </div>

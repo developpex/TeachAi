@@ -18,7 +18,7 @@ export function ProfileActions({
       <div className="flex items-center space-x-4">
         <button
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-primary hover:text-primary-dark"
+          className="px-4 py-2 text-sm font-medium text-primary hover:text-primary-dark dark:text-dark-text"
           disabled={saving}
         >
           Cancel

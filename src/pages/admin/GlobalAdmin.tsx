@@ -7,6 +7,7 @@ import type { School } from '../../types/admin';
 import { CreateSchoolModal } from '../../components/admin/CreateSchoolModal';
 import { SchoolList } from '../../components/admin/SchoolList';
 import {ROLE} from "../../utils/constants.ts";
+import {LoadingSpinner} from "../../components/shared/LoadingSpinner.tsx";
 
 export function GlobalAdmin() {
   const { isOwner, loading: authLoading } = useAdmin();
@@ -56,16 +57,17 @@ export function GlobalAdmin() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-primary">Loading...</div>
-      </div>
+        <div
+            className="min-h-screen bg-background dark:bg-dark-background flex items-center justify-center">
+          <LoadingSpinner/>
+        </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-start mb-8">
+      <div className="min-h-screen bg-background py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-3xl font-bold text-primary-dark">Admin</h1>
             <p className="mt-2 text-primary">Manage schools and administrators</p>

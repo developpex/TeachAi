@@ -21,7 +21,7 @@ export function MessageInput({ value, onChange, onSubmit }: MessageInputProps) {
             }
           }}
           rows={1}
-          className="flex-1 px-4 py-3 border-2 border-sage/30 rounded-lg text-primary-dark placeholder-primary/50 focus:outline-none focus:ring-accent focus:border-accent resize-none"
+          className="flex-1 px-4 py-3 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text placeholder-primary/50 dark:placeholder-dark-text-secondary/50 focus:outline-none focus:ring-accent focus:border-accent resize-none bg-white dark:bg-dark-surface"
           placeholder="Type your message..."
         />
         <button

@@ -21,7 +21,7 @@ export function ChannelList({
 
         return (
           <div key={category}>
-            <h3 className="text-xs font-semibold text-primary-dark uppercase tracking-wider mb-2">
+            <h3 className="text-xs font-semibold text-primary-dark dark:text-dark-text uppercase tracking-wider mb-2">
               {category}
             </h3>
             <div className="space-y-1">
@@ -32,7 +32,7 @@ export function ChannelList({
                   className={`w-full flex items-center px-2 py-1.5 rounded-lg text-sm transition-colors duration-200 ${
                     selectedChannel?.id === channel.id
                       ? 'bg-accent text-white'
-                      : 'text-primary hover:bg-sage/10'
+                      : 'text-primary dark:text-dark-text-secondary hover:bg-sage/10 dark:hover:bg-dark-surface'
                   }`}
                 >
                   <Hash className="h-4 w-4 flex-shrink-0 mr-2" />

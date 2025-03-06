@@ -7,6 +7,7 @@ import type { User, School } from '../../types/admin';
 import { AddUserModal } from '../../components/admin/AddUserModal';
 import { UserList } from '../../components/admin/UserList';
 import {ROLE} from "../../utils/constants.ts";
+import {LoadingSpinner} from "../../components/shared/LoadingSpinner.tsx";
 
 export function SchoolAdmin() {
   const { role, loading, adminService } = useAdmin();
@@ -106,16 +107,17 @@ export function SchoolAdmin() {
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-primary">Loading...</div>
-      </div>
+        <div
+            className="min-h-screen bg-background dark:bg-dark-background flex items-center justify-center">
+          <LoadingSpinner/>
+        </div>
     );
   }
 
   if (!school) {
     return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-background py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg shadow-soft border border-sage/10 p-8 text-center">
             <h2 className="text-xl font-semibold text-primary-dark mb-4">No School Found</h2>
             <p className="text-primary">

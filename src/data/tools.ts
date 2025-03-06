@@ -4,6 +4,7 @@ export const allTools: Tool[] = [
   {
     id: 'rCdMOw9hbAOEl5eoZUyc',
     name: 'Lesson Plan Generator',
+    navigation: 'ai-lesson-planner',
     description:
       'Create comprehensive lesson plans in minutes using AI assistance.',
     icon: 'BookOpen',
@@ -50,6 +51,7 @@ export const allTools: Tool[] = [
   {
     id: 'kLmNPq8rsTuVwXyZ1234',
     name: 'Parent Communication Assistant',
+    navigation: 'ai-parent-communication',
     description:
       'Generate professional updates and reports for parent communication.',
     icon: 'Mail',
@@ -88,6 +90,7 @@ export const allTools: Tool[] = [
   {
     id: 'aBcDeF5gHiJkLmN6pQr',
     name: 'Classroom Management Assistant',
+    navigation: 'ai-classroom-management',
     description: 'Streamline administrative tasks and schedule management.',
     icon: 'Calendar',
     category: 'free',
@@ -126,6 +129,7 @@ export const allTools: Tool[] = [
   {
     id: 'xYz7WvUt8sRqPoNmLkJ',
     name: 'Gamification Tools',
+    navigation: 'ai-gamification',
     description:
       'Create educational games and reward systems to boost engagement.',
     icon: 'Trophy',
@@ -165,6 +169,7 @@ export const allTools: Tool[] = [
   {
     id: 'hGfDsA9kLpMnBvCxZq',
     name: 'Pronunciation Coach',
+    navigation: 'ai-pronounciation-coach',
     description:
       'Provide instant feedback on language pronunciation and phonetics.',
     icon: 'Mic',
@@ -212,6 +217,7 @@ export const allTools: Tool[] = [
   {
     id: 'jKlMnO5pQrStUvWxYz',
     name: 'Special Needs Support',
+    navigation: 'ai-special-needs-support',
     description:
       'Customize learning materials for students with special educational needs.',
     icon: 'Heart',
@@ -251,6 +257,7 @@ export const allTools: Tool[] = [
   {
     id: 'qWeRtY6uIoPaSdFgHj',
     name: 'Virtual Teaching Assistant',
+    navigation: 'ai-virtual-teaching',
     description:
       'AI-powered assistant for answering student questions and providing explanations.',
     icon: 'Bot',
@@ -289,6 +296,7 @@ export const allTools: Tool[] = [
   {
     id: 'mNbVcX8zLkJhGfDsA9',
     name: 'Assessment Builder',
+    navigation: 'ai-assesment-builder',
     description:
       'Create comprehensive assessments with various question types and automated grading.',
     icon: 'ClipboardCheck',
@@ -333,6 +341,7 @@ export const allTools: Tool[] = [
   {
     id: 'pQrStU7vWxYzAbCdEf',
     name: 'Vocabulary Builder',
+    navigation: 'ai-vocabulary-builder',
     description:
       'Generate customized vocabulary lists and interactive learning activities.',
     icon: 'BookText',
@@ -365,6 +374,7 @@ export const allTools: Tool[] = [
   {
     id: 'gHiJkL4mNoPqRsTuVw',
     name: 'Lab Report Generator',
+    navigation: 'ai-lab-report-generator',
     description:
       'Create detailed science lab reports with proper formatting and sections.',
     icon: 'TestTube',
@@ -397,6 +407,7 @@ export const allTools: Tool[] = [
   {
     id: 'xYzAbC3dEfGhIjKlMn',
     name: 'Math Problem Generator',
+    navigation: 'ai-math-problem-generator',
     description:
       'Generate customized math problems with step-by-step solutions.',
     icon: 'Calculator',
@@ -436,6 +447,7 @@ export const allTools: Tool[] = [
   {
     id: 'oPqRsT2uVwXyZaBcDe',
     name: 'Writing Prompt Generator',
+    navigation: 'ai-writing-prompt-generator',
     description:
       'Generate creative and engaging writing prompts for various genres and subjects.',
     icon: 'PenTool',

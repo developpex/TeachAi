@@ -24,10 +24,11 @@ export class UserService {
   private static instance: UserService;
   private db = getFirestore();
   private auth = getAuth();
-  private apiUrl: string;
+  private readonly apiUrl: string;
 
   private constructor() {
-    this.apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+      this.apiUrl = 'http://localhost:3000/user';
+      // this.apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/user';
   }
 
   public static getInstance(): UserService {
@@ -95,7 +96,7 @@ export class UserService {
       }
 
       // If the user exists, try to get their UID
-      if (methods.includes(EmailAuthProvider.EMAIL_PASSWORD_PROVIDER_ID)) {
+      if (methods.includes(EmailAuthProvider.PROVIDER_ID)) {
         try {
           // Try a dummy sign in to get the error which contains the UID
           await signInWithEmailAndPassword(this.auth, email, 'dummy-password');
@@ -191,7 +192,7 @@ export class UserService {
       }
 
       const idToken = await currentUser.getIdToken();
-      const response = await fetch(`${this.apiUrl}/admin/users/${userId}`, {
+        const response = await fetch(`${this.apiUrl}/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${idToken}`

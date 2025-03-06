@@ -65,7 +65,7 @@ service cloud.firestore {
     match /user_tool_usage/{userId} {
       // Users can only read and write their own usage data
       allow read, write: if isUser(userId);
-
+      
       // Admins and owners can read all usage data
       allow read: if isAdmin() || isOwner();
     }
@@ -73,24 +73,32 @@ service cloud.firestore {
     // Existing rules...
     match /tool_usage/{usageId} {
       // Allow users to read their own usage data
-      allow read: if isAuthenticated() &&
+      allow read: if isAuthenticated() && 
         request.auth.uid == resource.data.userId;
-
+      
       // Allow users to create usage entries for themselves
-      allow create: if isAuthenticated() &&
+      allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid &&
         request.resource.data.keys().hasAll(['userId', 'toolId', 'toolName', 'timestamp', 'weekStartDate']) &&
         request.resource.data.timestamp is timestamp &&
         request.resource.data.weekStartDate is timestamp;
-
+      
       // No updates or deletes allowed
       allow update, delete: if false;
+    }
+    
+    // User history rules
+    match /user_history/{userId} {
+      allow read: if isUser(userId);
+      allow create, update: if isUser(userId) &&
+        request.resource.data.keys().hasAll(['responses']) &&
+        request.resource.data.responses is list;
     }
 
     // Support tickets rules
     match /support_tickets/{ticketId} {
       // Create ticket
-      allow create: if
+      allow create: if 
         isAuthenticated() &&
         hasRequiredTicketFields() &&
         isValidTicketStatus() &&
@@ -98,16 +106,16 @@ service cloud.firestore {
         request.resource.data.userId == request.auth.uid;
 
       // Read ticket
-      allow read: if
+      allow read: if 
         isAuthenticated() &&
         (
-          resource.data.userId == request.auth.uid ||
-          isAdmin() ||
+          resource.data.userId == request.auth.uid || 
+          isAdmin() || 
           isOwner()
         );
 
       // Update ticket
-      allow update: if
+      allow update: if 
         isAuthenticated() &&
         (
           canUpdateTicketStatus() ||
@@ -127,9 +135,9 @@ service cloud.firestore {
       allow update: if isUser(userId) || isAdmin() || isOwner();
       allow delete: if isAdmin() || isOwner();
     }
-
+    
     // Allow users to update their own favorites
-      allow update: if isUser(userId) &&
+      allow update: if isUser(userId) && 
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['favorites']);
 
     // Schools
@@ -140,13 +148,13 @@ service cloud.firestore {
 
     // Active sessions
     match /sessions/{sessionId} {
-      allow read: if isAuthenticated() &&
+      allow read: if isAuthenticated() && 
         resource.data.userId == request.auth.uid;
-      allow create: if isAuthenticated() &&
+      allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid;
-      allow update: if isAuthenticated() &&
+      allow update: if isAuthenticated() && 
         resource.data.userId == request.auth.uid;
-      allow delete: if isAuthenticated() &&
+      allow delete: if isAuthenticated() && 
         resource.data.userId == request.auth.uid;
     }
 
@@ -158,31 +166,31 @@ service cloud.firestore {
 
     // Analytics
     match /analytics_tool_usage/{docId} {
-      allow create: if isAuthenticated() &&
+      allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid;
       allow read: if isAdmin() || isOwner();
     }
 
     match /analytics_feature_interactions/{docId} {
-      allow create: if isAuthenticated() &&
+      allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid;
       allow read: if isAdmin() || isOwner();
     }
 
     match /analytics_time_spent/{docId} {
-      allow create: if isAuthenticated() &&
+      allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid;
       allow read: if isAdmin() || isOwner();
     }
 
     match /analytics_errors/{docId} {
-      allow create: if isAuthenticated() &&
+      allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid;
       allow read: if isAdmin() || isOwner();
     }
 
     match /analytics_searches/{docId} {
-      allow create: if isAuthenticated() &&
+      allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid;
       allow read: if isAdmin() || isOwner();
     }
@@ -194,9 +202,9 @@ service cloud.firestore {
 
     // Email notifications
     match /emailNotifications/{notificationId} {
-      allow create: if isAuthenticated() &&
+      allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid;
-      allow read: if isAuthenticated() &&
+      allow read: if isAuthenticated() && 
         resource.data.userId == request.auth.uid;
       allow update: if false; // Only updated by Cloud Functions
     }
@@ -210,9 +218,9 @@ service cloud.firestore {
     // Chat messages
     match /messages/{channelId}/messages/{messageId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() &&
+      allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isAuthenticated() &&
+      allow update, delete: if isAuthenticated() && 
         resource.data.userId == request.auth.uid;
     }
   }

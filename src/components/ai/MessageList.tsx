@@ -1,10 +1,13 @@
-import { Message } from './Message.tsx';
-import type { Message as MessageType } from '../../types';
+import { Message } from './Message';
+import type { ChatMessage } from '../../types';
+import { HistoryService } from '../../services/history';
+import { useEffect, useState } from 'react';
 
 interface MessageListProps {
-  messages: MessageType[];
-  isLoading: boolean;
+  messages: ChatMessage[];
+  isLoading?: boolean;
   toolName: string;
+  toolId: string; // Add toolId prop
   onCopyMessage: (messageId: string) => void;
   onExport: (messageId: string, format: 'text' | 'pdf') => void;
   showExportMenu: string | null;
@@ -12,16 +15,68 @@ interface MessageListProps {
   copiedMessageId: string | null;
 }
 
-export function MessageList({
-  messages,
+export function MessageList({ 
+  messages, 
   isLoading,
   toolName,
+  toolId, // Add toolId to props
   onCopyMessage,
   onExport,
   showExportMenu,
   setShowExportMenu,
   copiedMessageId
 }: MessageListProps) {
+  const [savedResponses, setSavedResponses] = useState<string[]>([]);
+  const historyService = HistoryService.getInstance();
+
+  useEffect(() => {
+    let mounted = true;
+    
+    const loadSavedResponses = async () => {
+      try {
+        const responses = await historyService.getSavedResponses();
+        if (mounted) {
+          setSavedResponses(responses.map(r => r.content));
+        }
+      } catch (error) {
+        console.error('Error loading saved responses:', error);
+      }
+    };
+
+    loadSavedResponses();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const handleFavorite = async (messageId: string) => {
+    const message = messages.find(m => m.id === messageId);
+    if (!message || message.type !== 'assistant') return;
+
+    try {
+      if (savedResponses.includes(message.content)) {
+        // Find the response ID and remove it
+        const responses = await historyService.getSavedResponses();
+        const responseToRemove = responses.find(r => r.content === message.content);
+        if (responseToRemove) {
+          await historyService.removeResponse(responseToRemove.id);
+          setSavedResponses(prev => prev.filter(content => content !== message.content));
+        }
+      } else {
+        // Save the response with the actual tool ID
+        await historyService.saveResponse(
+          toolId,
+          toolName,
+          message.content
+        );
+        setSavedResponses(prev => [...prev, message.content]);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
+  };
+
   return (
     <div className="flex-1 overflow-y-auto p-6 space-y-6">
       {messages.map((message) => (
@@ -31,22 +86,13 @@ export function MessageList({
           toolName={toolName}
           onCopy={() => onCopyMessage(message.id)}
           onExport={(format) => onExport(message.id, format)}
+          onFavorite={message.type === 'assistant' ? () => handleFavorite(message.id) : undefined}
           showExportMenu={showExportMenu === message.id}
           setShowExportMenu={setShowExportMenu}
           isCopied={copiedMessageId === message.id}
+          isFavorite={message.type === 'assistant' && savedResponses.includes(message.content)}
         />
       ))}
-      {isLoading && (
-        <div className="flex justify-start">
-          <div className="inline-flex bg-sage/5 text-primary rounded-lg px-4 py-2">
-            <div className="flex space-x-1">
-              <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce" />
-              <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce delay-100" />
-              <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce delay-200" />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

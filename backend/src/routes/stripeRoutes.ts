@@ -1,12 +1,12 @@
-import express from 'express';
+import {Router} from 'express';
 import {
   createCheckoutSession,
   getCheckoutSession,
   getSubscriptionStatus,
   cancelSubscription
-} from '../controllers/stripeController.js';
+} from '../controllers/stripeController';
 
-const router = express.Router();
+const router = Router();
 
 router.post('/create-checkout-session', createCheckoutSession);
 router.get('/checkout-session/:sessionId', getCheckoutSession);

@@ -26,8 +26,9 @@ export function ChatSidebar({
     <>
       {/* Channels Sidebar */}
       <div className={`
-        fixed md:relative w-64 bg-white border-r border-sage/10 flex flex-col z-20
+        fixed md:relative w-64 bg-white dark:bg-dark-primary flex flex-col z-20
         transform transition-transform duration-300 ease-in-out h-full
+        border-r border-sage/10 dark:border-dark-border
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <SearchInput
@@ -45,7 +46,7 @@ export function ChatSidebar({
       {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/30 z-10 md:hidden"
+          className="fixed inset-0 bg-black/30 dark:bg-black/50 z-10 md:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}

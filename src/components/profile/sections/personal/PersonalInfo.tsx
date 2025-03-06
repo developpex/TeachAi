@@ -17,14 +17,14 @@ export function PersonalInfo() {
   } = usePersonalInfo();
 
   if (!userProfile) {
-    return <div>Loading...</div>;
+    return <div className="text-primary dark:text-dark-text">Loading...</div>;
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-soft border border-sage/10 p-4 md:p-8">
+    <div className="bg-white dark:bg-dark-nav rounded-lg shadow-soft dark:shadow-dark-soft border border-sage/10 dark:border-dark-border p-4 md:p-8">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-primary-dark mb-4 md:mb-0">Personal Information</h2>
+        <h2 className="text-2xl font-semibold text-primary-dark dark:text-dark-text mb-4 md:mb-0">Personal Information</h2>
         <ProfileActions
           isEditing={isEditing}
           saving={saving}

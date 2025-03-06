@@ -36,22 +36,22 @@ export function ChatContent({
   return (
     <div className="flex-1 flex flex-col min-w-0">
       {/* Channel Header */}
-      <div className="h-16 border-b border-sage/10 px-6 flex items-center justify-between bg-white">
+      <div className="h-[65px] border-b border-sage/10 dark:border-dark-border px-6 flex items-center justify-between bg-white dark:bg-dark-nav">
         <div className="flex items-center space-x-2">
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="md:hidden p-2 -ml-2 hover:bg-sage/10 rounded-lg transition-colors duration-200"
+            className="md:hidden p-2 -ml-2 hover:bg-sage/10 dark:hover:bg-dark-surface rounded-lg transition-colors duration-200"
           >
-            <Menu className="h-5 w-5 text-primary" />
+            <Menu className="h-5 w-5 text-primary dark:text-dark-text" />
           </button>
 
-          <Hash className="h-5 w-5 text-primary" />
+          <Hash className="h-5 w-5 text-primary dark:text-dark-text" />
           <div>
-            <h2 className="text-lg font-semibold text-primary-dark">
+            <h2 className="text-lg font-semibold text-primary-dark dark:text-dark-text">
               {selectedChannel.name}
             </h2>
-            <p className="text-xs text-primary">
+            <p className="text-xs text-primary dark:text-dark-text-secondary">
               {messages.length} messages
             </p>
           </div>
@@ -67,7 +67,7 @@ export function ChatContent({
       </div>
 
       {/* Message Input */}
-      <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-sage/10">
+      <div className="sticky bottom-0 left-0 right-0 bg-white dark:bg-dark-nav border-t border-sage/10 dark:border-dark-border">
         <MessageInput
           value={message}
           onChange={setMessage}

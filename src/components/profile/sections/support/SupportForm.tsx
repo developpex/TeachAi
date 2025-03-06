@@ -25,14 +25,14 @@ export function SupportForm({
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div>
-        <label htmlFor="category" className="block text-sm font-medium text-primary-dark mb-1">
+        <label htmlFor="category" className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
           Problem Category
         </label>
         <select
           id="category"
           value={category}
           onChange={(e) => onCategoryChange(e.target.value)}
-          className="w-full px-4 py-3 border-2 border-sage/30 rounded-lg text-primary-dark focus:outline-none focus:ring-accent focus:border-accent"
+          className="w-full px-4 py-3 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
           required
           disabled={submitting}
         >
@@ -47,7 +47,7 @@ export function SupportForm({
       </div>
 
       <div>
-        <label htmlFor="subject" className="block text-sm font-medium text-primary-dark mb-1">
+        <label htmlFor="subject" className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
           Subject
         </label>
         <input
@@ -55,7 +55,7 @@ export function SupportForm({
           type="text"
           value={subject}
           onChange={(e) => onSubjectChange(e.target.value)}
-          className="w-full px-4 py-3 border-2 border-sage/30 rounded-lg text-primary-dark placeholder-primary/50 focus:outline-none focus:ring-accent focus:border-accent"
+          className="w-full px-4 py-3 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface placeholder-primary/50 dark:placeholder-dark-text-secondary/50 focus:outline-none focus:ring-accent focus:border-accent"
           placeholder="Enter subject"
           required
           disabled={submitting}
@@ -63,7 +63,7 @@ export function SupportForm({
       </div>
 
       <div>
-        <label htmlFor="message" className="block text-sm font-medium text-primary-dark mb-1">
+        <label htmlFor="message" className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
           Message
         </label>
         <textarea
@@ -71,7 +71,7 @@ export function SupportForm({
           value={message}
           onChange={(e) => onMessageChange(e.target.value)}
           rows={6}
-          className="w-full px-4 py-3 border-2 border-sage/30 rounded-lg text-primary-dark placeholder-primary/50 focus:outline-none focus:ring-accent focus:border-accent resize-none"
+          className="w-full px-4 py-3 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface placeholder-primary/50 dark:placeholder-dark-text-secondary/50 focus:outline-none focus:ring-accent focus:border-accent resize-none"
           placeholder="Type your message..."
           required
           disabled={submitting}

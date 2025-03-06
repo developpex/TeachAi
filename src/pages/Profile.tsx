@@ -15,13 +15,13 @@ export function Profile() {
   const { isMobile } = useProfile();
 
   return (
-    <div className="min-h-screen w-full bg-background">
+    <div className="min-h-screen w-full bg-background dark:bg-dark-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Mobile Header */}
         {isMobile && (
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-primary-dark">Profile Settings</h1>
-            <p className="text-primary">Manage your account preferences</p>
+            <h1 className="text-2xl font-bold text-primary-dark dark:text-dark-text">Profile Settings</h1>
+            <p className="text-primary dark:text-dark-text-secondary">Manage your account preferences</p>
           </div>
         )}
         
