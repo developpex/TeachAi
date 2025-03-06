@@ -11,8 +11,8 @@ class StripeService {
   private constructor() {
     const isDevelopment = process.env.NODE_ENV === 'development';
     this.apiUrl = isDevelopment 
-      ? 'http://localhost:3000/api'
-      : `${window.location.origin}/api`;
+      ? 'http://localhost:3000/stripe'
+      : `${window.location.origin}/stripe`;
   }
 
   public static getInstance(): StripeService {

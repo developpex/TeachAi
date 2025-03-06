@@ -1,5 +1,6 @@
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
+import { Request, Response, NextFunction } from 'express';
 
 dotenv.config();
 
@@ -22,8 +23,8 @@ if (!admin.apps.length) {
   try {
     console.log('Initializing Firebase Admin...');
     admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
-    });
+      credential: admin.credential.cert(serviceAccount as admin.ServiceAccount)
+  });
     console.log('Firebase Admin initialized successfully');
   } catch (error) {
     console.error('Error initializing Firebase Admin:', error);
@@ -34,33 +35,35 @@ if (!admin.apps.length) {
 export const db = admin.firestore();
 export const auth = admin.auth();
 
-export async function verifyFirebaseToken(req, res, next) {
+export async function verifyFirebaseToken(req: Request, res: Response, next: NextFunction): Promise<void> {
   console.log('Verifying Firebase token...');
-  
+
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
     console.log('No Bearer token found');
-    return res.status(401).json({ error: 'Unauthorized - No token provided' });
+    res.status(401).json({ error: 'Unauthorized - No token provided' });
+    return;
   }
 
   try {
     const idToken = authHeader.split('Bearer ')[1];
     console.log('Token received:', idToken.substring(0, 10) + '...');
-    
+
     if (!idToken || idToken === 'null' || idToken === 'undefined') {
       console.log('Invalid token value');
-      return res.status(401).json({ error: 'Invalid token provided' });
+      res.status(401).json({ error: 'Invalid token provided' });
+      return;
     }
 
     console.log('Verifying token...');
     const decodedToken = await auth.verifyIdToken(idToken);
     console.log('Token verified. User:', decodedToken.uid);
-    
-    req.user = decodedToken;
+
+    (req as any).user = decodedToken; // Add user property to request
     next();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error verifying token:', error);
-    
+
     if (error.code === 'auth/id-token-expired') {
       res.status(401).json({ error: 'Token expired' });
     } else if (error.code === 'auth/id-token-revoked') {
