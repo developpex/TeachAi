@@ -24,6 +24,7 @@ backend/.env.development
 backend/.env.production
 backend/.env.test
 backend/.env.*.local
+backend/uploads
 
 # Logs
 logs/

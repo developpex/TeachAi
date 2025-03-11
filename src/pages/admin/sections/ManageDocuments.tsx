@@ -20,6 +20,7 @@ export function ManageDocuments() {
   const { adminService } = useAdmin();
   const documentService = DocumentService.getInstance();
   const subjectService = SubjectService.getInstance();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const initializeData = async () => {
@@ -80,8 +81,8 @@ export function ManageDocuments() {
     try {
       setUploading(true);
       setError(null);
-  
-      const response = await fetch('/vectorStore/upload', {
+
+      const response = await fetch(`${API_URL}/vectorStore/upload`, {
         method: 'POST',
         body: data,
       });
@@ -114,13 +115,15 @@ export function ManageDocuments() {
   };
 
   const handleDelete = async (document: SchoolDocument) => {
+    console.log('Deleting document with:', { schoolId, fileId: document.fileId });
     if (!schoolId) return;
   
     try {
       setError(null);
-  
+
+      console.log(document);
       // Delete from vector store
-      const response = await fetch('/vectorStore/delete', {
+      const response = await fetch(`${API_URL}/vectorStore/delete`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

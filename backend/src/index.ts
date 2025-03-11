@@ -21,6 +21,9 @@ app.use(morgan('combined'));
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+// ✅ Parses URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
+
 // Configure CORS
 app.use(cors(corsOptions));
 
