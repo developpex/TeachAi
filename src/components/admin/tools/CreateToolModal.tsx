@@ -15,6 +15,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
   const [category, setCategory] = useState<Tool['category']>(PLAN.FREE);
   const [toolCategory, setToolCategory] = useState('lesson-planning');
   const [icon, setIcon] = useState('BookOpen');
+  const [navigation, setNavigation] = useState('');
   const [fields, setFields] = useState<ToolField[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -83,6 +84,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
         category,
         toolCategory,
         icon,
+        navigation: navigation.trim() || name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         fields
       });
       
@@ -92,6 +94,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
       setCategory(PLAN.FREE);
       setToolCategory('lesson-planning');
       setIcon('BookOpen');
+      setNavigation('');
       setFields([]);
       onClose();
     } catch (err) {
@@ -106,19 +109,19 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
       <div className="relative min-h-screen flex items-center justify-center p-4">
-        <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-3xl p-8 border border-sage/10">
+        <div className="relative bg-white dark:bg-dark-nav rounded-2xl shadow-xl dark:shadow-dark-soft w-full max-w-3xl p-8 border border-sage/10 dark:border-dark-border">
           <div className="flex justify-between items-start mb-6">
-            <h3 className="text-2xl font-semibold text-primary-dark">Create New Tool</h3>
-            <button onClick={onClose} className="text-primary hover:text-primary-dark">
+            <h3 className="text-2xl font-semibold text-primary-dark dark:text-dark-text">Create New Tool</h3>
+            <button onClick={onClose} className="text-primary dark:text-dark-text-secondary hover:text-primary-dark dark:hover:text-dark-text">
               <X className="h-6 w-6" />
             </button>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-coral/20 border border-accent rounded-lg text-accent-dark">
+            <div className="mb-6 p-4 bg-coral/20 dark:bg-coral/10 border border-accent rounded-lg text-accent-dark">
               {error}
             </div>
           )}
@@ -126,39 +129,52 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-primary-dark mb-1">
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                   Tool Name
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                  className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                   placeholder="Enter tool name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-primary-dark mb-1">
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
+                  Navigation URL
+                </label>
+                <input
+                  type="text"
+                  value={navigation}
+                  onChange={(e) => setNavigation(e.target.value)}
+                  className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
+                  placeholder="Custom URL path (optional)"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                   Icon
                 </label>
                 <input
                   type="text"
                   value={icon}
                   onChange={(e) => setIcon(e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                  className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                   placeholder="Icon name from Lucide"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-primary-dark mb-1">
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                   Category
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value as Tool['category'])}
-                  className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                  className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                 >
                   <option value="free">Free</option>
                   <option value="plus">Plus</option>
@@ -167,13 +183,13 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-primary-dark mb-1">
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                   Tool Category
                 </label>
                 <select
                   value={toolCategory}
                   onChange={(e) => setToolCategory(e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                  className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                 >
                   {(TOOL_CATEGORIES.filter(category => category !== 'all').map((toolCategory) => (
                       <option key={toolCategory} value={toolCategory}>{toolCategory}</option>
@@ -183,13 +199,13 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-primary-dark mb-1">
+              <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                 Description
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                 rows={3}
                 placeholder="Enter tool description"
               />
@@ -197,13 +213,13 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
 
             <div>
               <div className="flex items-center justify-between mb-4">
-                <label className="block text-sm font-medium text-primary-dark">
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text">
                   Fields
                 </label>
                 <button
                   type="button"
                   onClick={addField}
-                  className="flex items-center text-accent hover:text-accent-dark"
+                  className="flex items-center text-accent hover:text-accent-dark dark:text-accent dark:hover:text-accent-dark"
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Field
@@ -212,36 +228,36 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
 
               <div className="space-y-4">
                 {fields.map((field, index) => (
-                  <div key={index} className="flex items-start space-x-4 p-4 bg-sage/5 rounded-lg">
+                  <div key={index} className="flex items-start space-x-4 p-4 bg-sage/5 dark:bg-dark-surface rounded-lg">
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-primary-dark mb-1">
+                        <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                           Label
                         </label>
                         <input
                           type="text"
                           value={field.label}
                           onChange={(e) => updateField(index, { label: e.target.value })}
-                          className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                          className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                           placeholder="Field label"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-primary-dark mb-1">
+                        <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                           Placeholder
                         </label>
                         <input
                           type="text"
                           value={field.placeholder}
                           onChange={(e) => updateField(index, { placeholder: e.target.value })}
-                          className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                          className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                           placeholder="Field placeholder"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-primary-dark mb-1">
+                        <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                           Type
                         </label>
                         <select
@@ -250,7 +266,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
                             type: e.target.value as ToolField['type'],
                             options: e.target.value === 'select' ? [''] : undefined
                           })}
-                          className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                          className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                         >
                           <option value="input">Input</option>
                           <option value="textarea">Textarea</option>
@@ -260,7 +276,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
 
                       {field.type === 'select' && (
                         <div>
-                          <label className="block text-sm font-medium text-primary-dark mb-1">
+                          <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                             Options (comma-separated)
                           </label>
                           <input
@@ -269,7 +285,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
                             onChange={(e) => updateField(index, { 
                               options: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
                             })}
-                            className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                            className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                             placeholder="Option 1, Option 2, Option 3"
                           />
                         </div>
@@ -279,7 +295,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
                     <button
                       type="button"
                       onClick={() => removeField(index)}
-                      className="p-2 text-accent hover:text-accent-dark"
+                      className="p-2 text-accent hover:text-accent-dark dark:text-accent dark:hover:text-accent-dark"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
@@ -292,7 +308,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-primary hover:text-primary-dark"
+                className="px-4 py-2 text-primary dark:text-dark-text-secondary hover:text-primary-dark dark:hover:text-dark-text"
               >
                 Cancel
               </button>

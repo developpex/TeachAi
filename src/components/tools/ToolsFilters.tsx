@@ -25,14 +25,14 @@ export function ToolsFilters({
   return (
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-center space-x-4 flex-wrap gap-2">
-        {/* Pricing Categories */}
-        {availableCategories.map((category) => (
+        {/* Pricing Categories - Always show all categories */}
+        {['all', 'free', 'plus', /*'enterprise'*/].map((category) => (
           <button
             key={category}
-            onClick={() => setSelectedCategory(category as any)}
+            onClick={() => setSelectedCategory(category)}
             className={`px-4 py-2 rounded-lg transition-all duration-300 ${
               selectedCategory === category
-                ? 'bg-accent text-white shadow-soft'
+                ? 'bg-accent text-white shadow-soft dark:shadow-dark-soft'
                 : 'bg-white dark:bg-dark-nav text-primary dark:text-dark-text hover:bg-mint/10 dark:hover:bg-dark-surface'
             }`}
           >
@@ -52,7 +52,7 @@ export function ToolsFilters({
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute z-50 mt-2 w-64 bg-white dark:bg-dark-nav rounded-lg shadow-lg border border-sage/10 dark:border-dark-border py-2">
+            <div className="absolute z-50 mt-2 w-64 bg-white dark:bg-dark-nav rounded-lg shadow-lg dark:shadow-dark-soft border border-sage/10 dark:border-dark-border py-2">
               {(TOOL_CATEGORIES).map((category) => (
                 <button
                   key={category}

@@ -68,16 +68,12 @@ export function useTools(options: UseToolsOptions = {}) {
   const filteredTools = useMemo(() => {
     let filtered = availableTools;
 
-    if (options.filterByCategory) {
-      filtered = filtered.filter(tool =>
-        selectedCategory === 'all' || tool.category === selectedCategory
-      );
+    if (options.filterByCategory && selectedCategory !== 'all') {
+      filtered = filtered.filter(tool => tool.category === selectedCategory);
     }
 
-    if (options.filterByToolCategory) {
-      filtered = filtered.filter(tool =>
-        selectedToolCategory === 'all' || tool.toolCategory === selectedToolCategory
-      );
+    if (options.filterByToolCategory && selectedToolCategory !== 'all') {
+      filtered = filtered.filter(tool => tool.toolCategory === selectedToolCategory);
     }
 
     if (options.searchEnabled && searchQuery) {
@@ -94,15 +90,11 @@ export function useTools(options: UseToolsOptions = {}) {
   }, [availableTools, selectedCategory, selectedToolCategory, searchQuery, options, userProfile?.favorites]);
 
   const categorizedTools = useMemo(() => {
-    const filtered = selectedCategory === 'all'
-        ? filteredTools
-        : filteredTools.filter(tool => tool.category === selectedCategory);
-
     return Object.values(PLAN).reduce((acc, tier) => {
-      acc[tier] = filtered.filter(tool => tool.category === tier);
+      acc[tier] = filteredTools.filter(tool => tool.category === tier);
       return acc;
     }, {} as Record<Category, Tool[]>);
-  }, [filteredTools, selectedCategory]);
+  }, [filteredTools]);
 
   const favoriteTools = useMemo(() =>
     filteredTools.filter(tool => userProfile?.favorites?.includes(tool.id)),
@@ -115,8 +107,8 @@ export function useTools(options: UseToolsOptions = {}) {
   );
 
   const availableCategories = useMemo(() => {
-    return ['all', ...Object.values(PLAN).filter(tier => categorizedTools[tier]?.length > 0)];
-  }, [categorizedTools]);
+    return ['all', ...Object.values(PLAN)];
+  }, []);
 
   return {
     loading,

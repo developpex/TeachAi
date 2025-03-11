@@ -7,9 +7,10 @@ import type { User } from '../../types/admin';
 interface UserListProps {
   users: User[];
   onUpdate: (users: User[]) => void;
+  onEdit: (user: User) => void;
 }
 
-export function UserList({ users, onUpdate }: UserListProps) {
+export function UserList({ users, onUpdate, onEdit }: UserListProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user: currentUser } = useAuth();
@@ -34,38 +35,10 @@ export function UserList({ users, onUpdate }: UserListProps) {
     }
   };
 
-  const handleUpdateRole = async (userId: string, newRole: 'admin' | 'user') => {
-    if (!userId) return;
-
-    try {
-      setLoading(true);
-      await adminService.updateUserRole(userId, newRole);
-      
-      // Update local state
-      const updatedUsers = users.map(user => {
-        if (user.id === userId) {
-          return {
-            ...user,
-            role: newRole
-          };
-        }
-        return user;
-      });
-      
-      onUpdate(updatedUsers);
-      setError(null);
-    } catch (err) {
-      console.error('Error updating role:', err);
-      setError('Failed to update role');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (!users.length) {
     return (
-      <div className="bg-white rounded-lg shadow-soft border border-sage/10 p-8 text-center">
-        <p className="text-primary">No users found. Add users using the button above.</p>
+      <div className="bg-white dark:bg-dark-nav rounded-lg shadow-soft dark:shadow-dark-soft border border-sage/10 dark:border-dark-border p-8 text-center">
+        <p className="text-primary dark:text-dark-text">No users found. Add users using the button above.</p>
       </div>
     );
   }
@@ -73,54 +46,48 @@ export function UserList({ users, onUpdate }: UserListProps) {
   return (
     <div className="space-y-6">
       {error && (
-        <div className="p-4 bg-coral/20 border border-accent rounded-lg text-accent-dark">
+        <div className="p-4 bg-coral/20 dark:bg-coral/10 border border-accent rounded-lg text-accent-dark">
           {error}
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-soft border border-sage/10 overflow-hidden">
-        <div className="divide-y divide-sage/10">
+      <div className="bg-white dark:bg-dark-nav rounded-lg shadow-soft dark:shadow-dark-soft border border-sage/10 dark:border-dark-border overflow-hidden">
+        <div className="divide-y divide-sage/10 dark:divide-dark-border">
           {users.map((user) => (
             <div
-              key={user.id || user.email} // Fallback to email if id is not available
-              className="p-6 flex items-center justify-between hover:bg-sage/5 transition-colors duration-200"
+              key={user.id || user.email}
+              className="p-6 flex items-center justify-between hover:bg-sage/5 dark:hover:bg-dark-surface transition-colors duration-200 cursor-pointer"
+              onClick={() => onEdit(user)}
             >
               <div className="flex items-center space-x-4">
-                <div className="p-2 bg-mint/20 rounded-lg">
-                  <UserCircle className="h-5 w-5 text-primary" />
+                <div className="p-2 bg-mint/20 dark:bg-mint/10 rounded-lg">
+                  <UserCircle className="h-5 w-5 text-primary dark:text-dark-text" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-primary-dark">
+                  <h3 className="text-lg font-semibold text-primary-dark dark:text-dark-text">
                     {user.email}
                   </h3>
-                  <p className="text-sm text-primary">
+                  <p className="text-sm text-primary dark:text-dark-text-secondary">
                     Role: {user.role}
                   </p>
+                  {user.subjects && user.subjects.length > 0 && (
+                    <p className="text-sm text-primary dark:text-dark-text-secondary mt-1">
+                      Subjects: {user.subjects.length}
+                    </p>
+                  )}
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4">
-                <select
-                  value={user.role}
-                  onChange={(e) => handleUpdateRole(
-                    user.id,
-                    e.target.value as 'admin' | 'user'
-                  )}
-                  disabled={loading || user.id === currentUser?.uid}
-                  className="px-3 py-1.5 border border-sage/30 rounded-lg text-sm focus:border-accent focus:ring-accent disabled:opacity-50"
-                >
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                </select>
-
-                <button
-                  onClick={() => handleRemoveUser(user.id)}
-                  disabled={loading || user.id === currentUser?.uid}
-                  className="p-1.5 text-accent hover:text-accent-dark disabled:opacity-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveUser(user.id);
+                }}
+                disabled={loading || user.id === currentUser?.uid}
+                className="p-1.5 text-accent hover:text-accent-dark disabled:opacity-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
           ))}
         </div>

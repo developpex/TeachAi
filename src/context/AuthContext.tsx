@@ -14,13 +14,12 @@ import {
   User
 } from 'firebase/auth';
 import {
-  arrayRemove,
-  arrayUnion,
   doc,
   getDoc,
   getFirestore,
   setDoc,
   Timestamp,
+  collection,
   updateDoc
 } from 'firebase/firestore';
 import {auth} from '../config/firebase';
@@ -310,26 +309,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user || !userProfile) return;
 
     try {
-      const userRef = doc(db, 'users', user.uid);
-      const isFavorite = userProfile.favorites?.includes(toolId);
+      // Get current favorites, ensuring it's an array
+      const currentFavorites = Array.isArray(userProfile.favorites) ? userProfile.favorites : [];
+      const isFavorite = currentFavorites.includes(toolId);
       
-      if (isFavorite) {
-        await updateDoc(userRef, {
-          favorites: arrayRemove(toolId)
-        });
-        setUserProfile(prev => prev ? {
-          ...prev,
-          favorites: prev.favorites?.filter(id => id !== toolId) || []
-        } : null);
-      } else {
-        await updateDoc(userRef, {
-          favorites: arrayUnion(toolId)
-        });
-        setUserProfile(prev => prev ? {
-          ...prev,
-          favorites: [...(prev.favorites || []), toolId]
-        } : null);
-      }
+      // Update favorites array
+      const newFavorites = isFavorite
+        ? currentFavorites.filter(id => id !== toolId)
+        : [...currentFavorites, toolId];
+
+      // Update user document with the new favorites array
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        favorites: newFavorites,
+        updatedAt: Timestamp.now()
+      });
+
+      // Update local state
+      setUserProfile(prev => prev ? {
+        ...prev,
+        favorites: newFavorites
+      } : null);
     } catch (error) {
       console.error('Error toggling favorite:', error);
       throw error;

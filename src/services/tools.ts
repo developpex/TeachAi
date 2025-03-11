@@ -96,10 +96,14 @@ export class ToolService {
     try {
       const toolsRef = collection(this.db, 'tools');
       const snapshot = await getDocs(toolsRef);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Tool));
+      return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          ...data,
+          id: doc.id,
+          navigation: data.navigation || doc.id.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+        } as Tool;
+      });
     } catch (error) {
       console.error('Error fetching tools:', error);
       throw error;
@@ -115,9 +119,11 @@ export class ToolService {
         return null;
       }
 
+      const data = snapshot.data();
       return {
+        ...data,
         id: snapshot.id,
-        ...snapshot.data()
+        navigation: data.navigation || snapshot.id.toLowerCase().replace(/[^a-z0-9]+/g, '-')
       } as Tool;
     } catch (error) {
       console.error('Error fetching tool:', error);
@@ -131,9 +137,21 @@ export class ToolService {
       const cleanedData = this.cleanToolData(tool);
       this.validateToolData(cleanedData);
 
+      // Create a new document with auto-generated ID
       const toolsRef = collection(this.db, 'tools');
       const newToolRef = doc(toolsRef);
-      await setDoc(newToolRef, cleanedData);
+
+      // Generate navigation if not provided
+      const navigation = cleanedData.navigation || 
+        cleanedData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+      // Add the document with the ID and navigation included in the data
+      await setDoc(newToolRef, {
+        ...cleanedData,
+        id: newToolRef.id,
+        navigation
+      });
+
       return newToolRef.id;
     } catch (error) {
       console.error('Error creating tool:', error);
@@ -152,18 +170,17 @@ export class ToolService {
       // Merge updates with current data
       const mergedData = {
         ...currentTool,
-        ...updates
+        ...updates,
+        id, // Ensure ID is preserved
+        navigation: updates.navigation || currentTool.navigation // Preserve or update navigation
       };
 
       // Clean and validate the merged data
       const cleanedData = this.cleanToolData(mergedData);
       this.validateToolData(cleanedData);
 
-      // Remove the id from the data before updating
-      const { id: _, ...dataToUpdate } = cleanedData;
-
       const toolRef = doc(this.db, 'tools', id);
-      await updateDoc(toolRef, dataToUpdate);
+      await updateDoc(toolRef, cleanedData);
     } catch (error) {
       console.error('Error updating tool:', error);
       throw error;

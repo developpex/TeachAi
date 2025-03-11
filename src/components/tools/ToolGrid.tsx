@@ -18,9 +18,9 @@ export function ToolGrid({ tools, title }: ToolGridProps) {
         <h2 className="text-2xl font-semibold text-primary-dark dark:text-dark-text mb-6">{title}</h2>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {tools.map(tool => (
+        {tools.map((tool, index) => (
           <ToolCard
-            key={tool.id}
+            key={tool.id || index} // Use tool.id if available, otherwise fallback to index
             tool={tool}
             onToggleFavorite={toggleFavorite}
           />

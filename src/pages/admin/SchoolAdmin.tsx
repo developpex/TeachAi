@@ -1,183 +1,72 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Users, UserPlus } from 'lucide-react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../hooks/useAdmin';
-import { useAuth } from '../../context/AuthContext';
-import type { User, School } from '../../types/admin';
-import { AddUserModal } from '../../components/admin/AddUserModal';
-import { UserList } from '../../components/admin/UserList';
-import {ROLE} from "../../utils/constants.ts";
-import {LoadingSpinner} from "../../components/shared/LoadingSpinner.tsx";
+import { SchoolAdminNavigation } from '../../components/admin/navigation/SchoolAdminNavigation';
+import { ManageUsers } from './sections/ManageUsers';
+import { ManageSubjects } from './sections/ManageSubjects';
+import { ManageDocuments } from './sections/ManageDocuments';
+import { ROLE } from "../../utils/constants";
+import { LoadingSpinner } from "../../components/shared/LoadingSpinner";
 
 export function SchoolAdmin() {
-  const { role, loading, adminService } = useAdmin();
-  const { user } = useAuth();
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
-  const [school, setSchool] = useState<School | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loadingData, setLoadingData] = useState(true);
+  const { role, loading: authLoading } = useAdmin();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && role !== ROLE.ADMIN) {
+    if (!authLoading && role !== ROLE.ADMIN) {
       console.log('User is not an admin, redirecting...', { role });
       navigate('/not-authorized');
       return;
     }
-  }, [role, loading, navigate]);
+  }, [role, authLoading, navigate]);
 
   useEffect(() => {
-    const fetchSchoolData = async () => {
-      if (!user) {
-        console.log('No user found');
-        return;
-      }
-
-      try {
-        console.log('Fetching school data for user:', user.uid);
-        
-        // Get user document to find their school
-        const userDoc = await adminService.getUserById(user.uid);
-        console.log('User document:', userDoc);
-        
-        if (!userDoc) {
-          console.log('User data not found');
-          setError('User data not found');
-          setLoadingData(false);
-          return;
-        }
-
-        if (!userDoc.schoolId) {
-          console.log('No school ID found for user');
-          setError('No school associated with this user');
-          setLoadingData(false);
-          return;
-        }
-
-        // Get school details
-        const schoolDoc = await adminService.getSchoolById(userDoc.schoolId);
-        console.log('School document:', schoolDoc);
-        
-        if (!schoolDoc) {
-          console.log('School data not found');
-          setError('School data not found');
-          setLoadingData(false);
-          return;
-        }
-
-        setSchool(schoolDoc);
-
-        // Get school users
-        const schoolUsers = await adminService.getSchoolUsers(userDoc.schoolId);
-        console.log('School users:', schoolUsers);
-        setUsers(schoolUsers);
-      } catch (err) {
-        console.error('Error fetching school data:', err);
-        setError('Failed to load school data');
-      } finally {
-        setLoadingData(false);
-      }
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
     };
 
-    if (user && role === ROLE.ADMIN) {
-      console.log('User is admin, fetching school data...');
-      fetchSchoolData();
-    }
-  }, [user, role, adminService]);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const handleAddUser = async (newUser: User) => {
-    if (!school) return;
-
-    try {
-      // Check user limit
-      if (users.length >= school.maxUsers) {
-        setError('Cannot add more users. User limit reached.');
-        return;
-      }
-
-      setUsers(prev => [...prev, newUser]);
-      setShowAddModal(false);
-      setError(null);
-    } catch (err) {
-      console.error('Error adding user:', err);
-      setError('Failed to add user');
-    }
-  };
-
-  if (loading || loadingData) {
+  if (authLoading) {
     return (
-        <div
-            className="min-h-screen bg-background dark:bg-dark-background flex items-center justify-center">
-          <LoadingSpinner/>
-        </div>
-    );
-  }
-
-  if (!school) {
-    return (
-        <div className="min-h-screen bg-background py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow-soft border border-sage/10 p-8 text-center">
-            <h2 className="text-xl font-semibold text-primary-dark mb-4">No School Found</h2>
-            <p className="text-primary">
-              {error || 'You are not associated with any school. Please contact your administrator.'}
-            </p>
-          </div>
-        </div>
+      <div className="min-h-screen bg-background dark:bg-dark-background flex items-center justify-center">
+        <LoadingSpinner />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-primary-dark">School Admin</h1>
-            <p className="mt-2 text-primary">Manage users for {school.name}</p>
-          </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            disabled={users.length >= school.maxUsers}
-            className="inline-flex items-center px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-dark transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <UserPlus className="h-5 w-5 mr-2" />
-            Add User
-          </button>
-        </div>
-
-        {error && (
-          <div className="mb-8 p-4 bg-coral/20 border border-accent rounded-lg text-accent-dark">
-            {error}
+    <div className="min-h-screen bg-background dark:bg-dark-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Mobile Header */}
+        {isMobile && (
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-primary-dark dark:text-dark-text">School Admin</h1>
+            <p className="text-primary dark:text-dark-text-secondary">Manage your school settings</p>
           </div>
         )}
-
-        <div className="bg-white rounded-lg shadow-soft border border-sage/10 p-6 mb-8">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-mint/20 rounded-lg">
-              <Users className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-primary-dark">Users</h2>
-              <p className="text-primary">
-                {users.length} of {school.maxUsers} users
-              </p>
-            </div>
+        
+        {/* Main Content */}
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Navigation */}
+          <div className="w-full md:w-64 flex-shrink-0">
+            <SchoolAdminNavigation />
+          </div>
+          
+          {/* Content Area */}
+          <div className="flex-1 min-w-0">
+            <Routes>
+              <Route path="/" element={<Navigate to="users" replace />} />
+              <Route path="users" element={<ManageUsers />} />
+              <Route path="subjects" element={<ManageSubjects />} />
+              <Route path="documents" element={<ManageDocuments />} />
+            </Routes>
           </div>
         </div>
-
-        <UserList users={users} onUpdate={setUsers} />
       </div>
-
-      {school && (
-        <AddUserModal
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-          onSuccess={handleAddUser}
-          schoolId={school.id}
-        />
-      )}
     </div>
   );
 }

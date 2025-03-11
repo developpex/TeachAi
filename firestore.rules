@@ -23,6 +23,42 @@ service cloud.firestore {
       return hasRole('admin');
     }
 
+    // Tools collection
+    match /tools/{toolId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner();
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isUser(userId) || isAdmin() || isOwner();
+      allow update: if isUser(userId) || isAdmin() || isOwner();
+      allow delete: if isAdmin() || isOwner();
+    }
+
+    // Channels collection
+    match /channels/{channelId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner();
+      allow update: if isAuthenticated() && (isOwner() || resource.data.createdBy == request.auth.uid);
+      allow delete: if isAuthenticated() && isOwner();
+    }
+
+    // Messages collection
+    match /messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin() || isOwner());
+    }
+
+    // User favorites
+    match /user_favorites/{userId} {
+      allow read: if isUser(userId);
+      allow write: if isUser(userId);
+    }
+
     function isValidTicketStatus() {
       let validStatuses = ['open', 'in_progress', 'resolved', 'closed', 'cancelled'];
       return request.resource.data.status in validStatuses;
@@ -61,29 +97,55 @@ service cloud.firestore {
       return isReplyUpdate && (isOwnerOfTicket || isAdmin() || isOwner());
     }
 
+    // School subjects rules
+    match /school_subjects/{schoolId}/subjects/{subjectId} {
+      allow read: if isAuthenticated() && 
+        (isAdmin() || isOwner() || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.schoolId == schoolId);
+      
+      allow create, update, delete: if isAuthenticated() && 
+        (isAdmin() || isOwner()) && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.schoolId == schoolId;
+    }
+
+    // School documents rules
+    match /school_documents/{schoolId}/documents/{documentId} {
+      allow read: if isAuthenticated() && 
+        (isAdmin() || isOwner() || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.schoolId == schoolId);
+      
+      allow create: if isAuthenticated() && 
+        (isAdmin() || isOwner()) && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.schoolId == schoolId &&
+        request.resource.data.keys().hasAll(['name', 'fileId', 'subjectId', 'uploadedBy', 'uploadedAt']);
+      
+      allow delete: if isAuthenticated() && 
+        (isAdmin() || isOwner()) && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.schoolId == schoolId;
+    }
+
+    // Schools collection
+    match /schools/{schoolId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isOwner();
+    }
+
     // Tool Usage Rules
     match /user_tool_usage/{userId} {
-      // Users can only read and write their own usage data
       allow read, write: if isUser(userId);
-      
-      // Admins and owners can read all usage data
       allow read: if isAdmin() || isOwner();
     }
 
-    // Existing rules...
     match /tool_usage/{usageId} {
-      // Allow users to read their own usage data
       allow read: if isAuthenticated() && 
         request.auth.uid == resource.data.userId;
       
-      // Allow users to create usage entries for themselves
       allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid &&
         request.resource.data.keys().hasAll(['userId', 'toolId', 'toolName', 'timestamp', 'weekStartDate']) &&
         request.resource.data.timestamp is timestamp &&
         request.resource.data.weekStartDate is timestamp;
       
-      // No updates or deletes allowed
       allow update, delete: if false;
     }
     
@@ -128,43 +190,7 @@ service cloud.firestore {
       allow delete: if isAdmin() || isOwner();
     }
 
-    // User profiles
-    match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if isUser(userId);
-      allow update: if isUser(userId) || isAdmin() || isOwner();
-      allow delete: if isAdmin() || isOwner();
-    }
-    
-    // Allow users to update their own favorites
-      allow update: if isUser(userId) && 
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['favorites']);
-
-    // Schools
-    match /schools/{schoolId} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isOwner();
-    }
-
-    // Active sessions
-    match /sessions/{sessionId} {
-      allow read: if isAuthenticated() && 
-        resource.data.userId == request.auth.uid;
-      allow create: if isAuthenticated() && 
-        request.resource.data.userId == request.auth.uid;
-      allow update: if isAuthenticated() && 
-        resource.data.userId == request.auth.uid;
-      allow delete: if isAuthenticated() && 
-        resource.data.userId == request.auth.uid;
-    }
-
-    // Tools
-    match /tools/{toolId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin() || isOwner();
-    }
-
-    // Analytics
+    // Analytics collections
     match /analytics_tool_usage/{docId} {
       allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid;
@@ -207,21 +233,6 @@ service cloud.firestore {
       allow read: if isAuthenticated() && 
         resource.data.userId == request.auth.uid;
       allow update: if false; // Only updated by Cloud Functions
-    }
-
-    // Chat channels
-    match /channels/{channelId} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isAdmin() || isOwner();
-    }
-
-    // Chat messages
-    match /messages/{channelId}/messages/{messageId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && 
-        request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isAuthenticated() && 
-        resource.data.userId == request.auth.uid;
     }
   }
 }

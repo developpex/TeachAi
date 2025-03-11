@@ -47,7 +47,7 @@ function AppContent() {
               <Route path="/chat" element={<Chat />} />
               <Route path="/profile/*" element={<Profile />} />
               <Route path="/admin" element={<GlobalAdmin />} />
-              <Route path="/school-admin" element={<SchoolAdmin />} />
+              <Route path="/school-admin/*" element={<SchoolAdmin />} />
               <Route path="/tickets" element={<TicketManagement />} />
               <Route path="/manage-tools" element={<ManageTools />} />
               <Route path="/not-authorized" element={<NotAuthorized />} />

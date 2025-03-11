@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export type ToolFieldType = 'input' | 'textarea' | 'select';
 
 export interface ToolField {
@@ -51,4 +53,10 @@ export interface PricingTier {
   buttonText: string;
   recommended?: boolean;
   period?: string;
+}
+
+export interface Subject {
+  id: string;
+  name: string;
+  createdAt: Date;
 }
