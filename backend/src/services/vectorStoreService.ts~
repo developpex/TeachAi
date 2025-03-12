@@ -4,7 +4,7 @@ import { Document } from 'langchain/document';
 import { getVectorStore } from '../utils/vectorStore';
 import { v4 as uuidv4 } from 'uuid';
 
-export const uploadPDFService = async (filePath: string, school: string, subject: string): Promise<string> => {
+export const processAndStorePDF = async (filePath: string, school: string, subject: string): Promise<string> => {
     console.log(`Starting processAndStorePDF for file: ${filePath}, school: ${school}, subject: ${subject}`);
 
     // Generate a unique ID for the entire file

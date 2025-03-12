@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { processAndStorePDF, deletePDFService } from '../services/vectorStoreService';
+import { uploadPDFService, deletePDFService } from '../services/vectorStoreService';
 
 export const uploadPDF = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -9,7 +9,7 @@ export const uploadPDF = async (req: Request, res: Response, next: NextFunction)
         }
 
         // Pass the file path and metadata to the service layer and get the fileId
-        const fileId = await processAndStorePDF(req.file.path, school, subject);
+        const fileId = await uploadPDFService(req.file.path, school, subject);
 
         res.json({ message: 'PDF uploaded and indexed successfully.', fileId });
     } catch (error) {
