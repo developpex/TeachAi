@@ -1,4 +1,4 @@
-import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Document } from 'langchain/document';
 import { getVectorStore } from '../utils/vectorStore';
@@ -47,7 +47,7 @@ export const uploadPDFService = async (filePath: string, school: string, subject
         await vectorStore.addDocuments(docsWithMetadata);
         console.log('Documents successfully added to vector store');
 
-        return fileId; // Return the unique fileId
+        return fileId;
     } catch (error) {
         console.error('Error in processAndStorePDF:', error);
         throw error;

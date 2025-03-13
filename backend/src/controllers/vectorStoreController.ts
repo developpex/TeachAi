@@ -18,7 +18,6 @@ export const uploadPDF = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
-
 export const deletePDF = async (req: Request, res: Response, next: NextFunction) => {
     console.log('Incoming DELETE request:');
     console.log('Headers:', req.headers);

@@ -1,70 +1,101 @@
-import {Document} from 'langchain/document';
-import {OllamaLLM} from '../utils/llm';
-import {getVectorStore} from "../utils/vectorStore";
+import llm from '../utils/llm';
+import { getDocumentsFromVectorStore } from "../utils/vectorStore";
 
-/**
- * Processes a query by:
- *  1. Filtering documents from the vector store based on metadata.
- *  2. Grouping and merging document chunks.
- *  3. Constructing a prompt and using the custom LLM (Ollama) to generate an answer.
- */
-export const processQuery = async (school: string, course: string, question: string): Promise<string> => {
-    // Retrieve the vector store instance
-    //const vectorStore = await getVectorStore();
-    const vectorStore = await getVectorStore(school);
-    console.log('vectorstore', vectorStore);
+export const processQuery = async (school: string, subject: string, question: string): Promise<string> => {
+    const context = await getDocumentsFromVectorStore(school, subject, question);
 
-    // Create a retriever filtering by school and course metadata
-    const retriever = vectorStore.asRetriever(10, {
-        course: { $eq: course }
-    });
-
-    // Retrieve relevant document chunks
-    const docs: Document[] = await retriever.getRelevantDocuments(question);
-    console.log('retrieved docs', docs);
-
-    // Group retrieved documents by PDF id
-    const groupedDocs: { [key: string]: Document[] } = {};
-    docs.forEach(doc => {
-        const pdfId = doc.metadata.pdfId || 'default';
-        if (!groupedDocs[pdfId]) {
-            groupedDocs[pdfId] = [];
-        }
-        groupedDocs[pdfId].push(doc);
-    });
-    //console.log('groupedDocs', groupedDocs);
-
-    // Stitch chunks together for each PDF by sorting by chunkIndex and concatenating text
-    const mergedDocs = Object.values(groupedDocs).map(group => {
-        group.sort((a, b) => (a.metadata.chunkIndex || 0) - (b.metadata.chunkIndex || 0));
-        return new Document({
-            pageContent: group.map(doc => doc.pageContent).join('\n'),
-            metadata: group[0].metadata, // Use metadata from the first chunk
-        });
-    });
-    console.log('mergedDocs', mergedDocs);
-
-    // Concatenate merged document texts as the context for the LLM
-    const context = mergedDocs.map(doc => doc.pageContent).join('\n\n');
-    //console.log('context', context);
-
-    // Construct the prompt with the provided question and the retrieved context
     const prompt = `
-    Answer the following question using the provided context.
-    
-    Context:
-    ${context}
-    
-    Question: ${question}
-  `;
+        Answer the following question using the provided context.
+        Provide only the final answer without showing your reasoning.
+        
+        Context:
+        ${context}
+        
+        Question: ${question}
+    `;
 
-    // Initialize your custom LLM (using Ollama deepseek)
-    const llm = new OllamaLLM({
-        model: 'deepseek-r1:1.5b',
-        endpoint: 'http://localhost:11434/api/generate',
-        maxTokens: 1000,
-    });
+    const response = await llm._call(prompt, {});
+    console.log("LLM Response:", response);
+    return response;
 
+    // function extractFinalAnswer(response: string): string {
+    //     // Remove chain-of-thought markers if present
+    //     return response.replace(/<think>.*<\/think>/s, '').trim();
+    // }
+    // const rawResponse = await llm._call(prompt, {});
+    // console.log("Raw response:", rawResponse);
+    // const finalAnswer = extractFinalAnswer(rawResponse);
+    // console.log("Final answer:", finalAnswer);
+    // return finalAnswer;
+
+    // todo: this is the correct one
     // Get the answer from the LLM
-    return await llm._call(prompt, {});
+
+
+    // todo: this is the correct one for streams
+    // Get the answer from the LLM
+    // let fullResponse = "";
+    // for await (const chunk of llm._streamResponseChunks(prompt, {})) {
+    //     fullResponse += chunk.text;
+    // }
+    // console.log("Full streamed response:", fullResponse);
+    // return fullResponse;
+
 };
+
+//todo implement buffer functionality for chat capability
+
+// How This Works
+// ConversationChain & BufferMemory:
+// The ConversationChain is set up with a BufferMemory that automatically appends previous interactions to the new prompt. This means the chain remembers the context and the responses you’ve received.
+//
+//     LLM Configuration:
+//     The Ollama instance is configured with parameters like temperature and num_predict to control its behavior. A low temperature helps ensure that the output is deterministic—ideal for arithmetic or factual questions.
+//
+//     Follow-Up Questions:
+//     When you call conversation.call() for the follow-up, the conversation history (stored in memory) is included in the prompt, so the LLM is aware of what came before.
+//
+//     By using this setup, you only need to ask your answer once. The follow-up questions build upon that conversation, ensuring a smooth, continuous chat session.
+
+// import { ConversationChain } from "@langchain/chains";
+// import { BufferMemory } from "@langchain/memory";
+// import { Ollama } from "@langchain/ollama";
+//
+// // Initialize your Ollama LLM
+// const ollama = new Ollama({
+//     baseUrl: "http://localhost:11434",
+//     model: "deepseek-r1:1.5b",
+//     temperature: 0,      // Deterministic output for arithmetic questions
+//     num_predict: 1000,   // Max tokens
+// });
+//
+// // Create a conversation chain with memory
+// const conversation = new ConversationChain({
+//     llm: ollama,
+//     memory: new BufferMemory({ memoryKey: "chat_history" }),
+// });
+//
+// async function runConversation() {
+//     // First question using the context
+//     const firstPrompt = `
+//     Answer the following question using the provided context.
+//
+//     Context:
+//     1739871971439
+//
+//     Question: what is the last digit of the given context?
+//   `;
+//     const firstResponse = await conversation.call({ input: firstPrompt });
+//     console.log("Answer 1:", firstResponse);
+//
+//     // Follow-up question: since the conversation memory keeps the previous context,
+//     // you can ask a follow-up like:
+//     const followupPrompt = "what is the 1st digit?";
+//     const followupResponse = await conversation.call({ input: followupPrompt });
+//     console.log("Follow-up Answer:", followupResponse);
+// }
+//
+// runConversation();
+
+
+

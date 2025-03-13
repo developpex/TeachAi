@@ -5,6 +5,13 @@ import { Document } from "langchain/document";
 // Use a simple in-memory map to cache stores by school.
 const stores: { [school: string]: Chroma } = {};
 
+/**
+ * Retrieves (or creates) a vector store (collection) for a given school.
+ * The collection name is dynamically built based on the school name.
+ *
+ * @param school - A string identifier for the school.
+ * @returns A Promise that resolves to a Chroma vector store for that school.
+ */
 export async function getVectorStore(school: string): Promise<Chroma> {
     console.log(`Getting vector store for school: ${school}`);
 
@@ -48,6 +55,15 @@ export async function getVectorStore(school: string): Promise<Chroma> {
     return stores[normalizedSchool];
 }
 
+/**
+ * Retrieves a vector store for a given school, uses a retriever
+ * to fetch document chunks filtered by subject, and returns a merged context.
+ *
+ * @param school - Identifier for the school.
+ * @param subject - The subject metadata to filter documents.
+ * @param question - The question used to determine relevant documents.
+ * @returns A Promise resolving to the merged context string.
+ */
 export async function getDocumentsFromVectorStore(
     school: string,
     subject: string,

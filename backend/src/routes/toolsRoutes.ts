@@ -3,7 +3,6 @@ import {queryHandler} from "../controllers/toolsController";
 
 const router = Router();
 
-// Query route: handles AI retrieval requests.
-router.post('/query', queryHandler);
+router.post('/test', queryHandler);
 
 export default router;
