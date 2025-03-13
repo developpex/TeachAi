@@ -7,6 +7,7 @@ export interface ToolField {
   placeholder: string;
   type: ToolFieldType;
   options?: string[];
+  isSubjectField?: boolean;  // New flag to identify subject selection fields
 }
 
 export interface ChatMessage {

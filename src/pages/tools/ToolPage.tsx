@@ -6,12 +6,13 @@ import { Tool } from '../../types';
 import { ToolForm } from './components/ToolForm';
 import { getIconComponent } from '../../utils/icons';
 import { MetaTags } from '../../components/shared/MetaTags';
-import { ArrowLeft, X, RefreshCw } from 'lucide-react';
+import { ArrowLeft, X, RefreshCw, AlertTriangle } from 'lucide-react';
 import { MessageList } from '../../components/ai/MessageList';
 import { MessageInput } from '../../components/ai/MessageInput';
 import { LoadingIndicator } from '../../components/ai/LoadingIndicator';
 import { useMessageExport } from '../../hooks/useMessageExport';
 import { LoadingSpinner } from '../../components/shared/LoadingSpinner';
+import { APIService } from '../../services/api';
 
 export function ToolPage() {
   const { navigation } = useParams();
@@ -21,8 +22,8 @@ export function ToolPage() {
   const [followUpPrompt, setFollowUpPrompt] = useState('');
   const [generating, setGenerating] = useState(false);
   const [showInputModal, setShowInputModal] = useState(true);
-  const [formKey, setFormKey] = useState(0); // Add this to force form reset
-  const { handleGenerate, handleFollowUp } = useToolContext();
+  const [formKey, setFormKey] = useState(0);
+  const apiService = APIService.getInstance();
   const {
     showExportMenu,
     setShowExportMenu,
@@ -43,6 +44,139 @@ export function ToolPage() {
     return null;
   }, [navigation, tools, toolsLoading, navigate]);
 
+  const getFormattedPrompt = (data: Record<string, string>) => {
+    return `Generate a lesson plan for ${data.Subject} (${data['Grade Level']}) focusing on ${data.Topic}. Learning objectives: ${data['Learning Objectives']}`;
+  };
+
+  const handleToolSubmit = async (formData: Record<string, any>) => {
+    try {
+      setShowInputModal(false);
+      setGenerating(true);
+      
+      // Add loading message
+      const loadingMessageId = Date.now().toString();
+      setMessages([{
+        id: loadingMessageId,
+        type: 'assistant',
+        content: getFormattedPrompt(formData),
+        isLoading: true
+      }]);
+
+      // Get response stream
+      const stream = await apiService.generateToolResponse(currentTool!.navigation, formData);
+      
+      if (!stream) {
+        throw new Error('No response stream received');
+      }
+
+      // Read the stream
+      const reader = stream.getReader();
+      const decoder = new TextDecoder();
+
+      // Replace loading message with actual content
+      setMessages(prev => [{
+        id: loadingMessageId,
+        type: 'assistant',
+        content: '',
+        isLoading: false
+      }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        
+        // Update message content
+        setMessages(prev => prev.map(msg => 
+          msg.id === loadingMessageId
+            ? { ...msg, content: msg.content + chunk }
+            : msg
+        ));
+      }
+    } catch (error) {
+      console.error('Error generating response:', error);
+      // Show error message in the chat
+      setMessages([{
+        id: Date.now().toString(),
+        type: 'assistant',
+        content: 'Sorry, I encountered an error while generating the response. Please try again.',
+        isError: true
+      }]);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!followUpPrompt.trim() || generating) return;
+
+    try {
+      setGenerating(true);
+      
+      // Add user message
+      const userMessageId = Date.now().toString();
+      setMessages(prev => [...prev, {
+        id: userMessageId,
+        type: 'user',
+        content: followUpPrompt
+      }]);
+
+      // Add loading message
+      const aiMessageId = (Date.now() + 1).toString();
+      setMessages(prev => [...prev, {
+        id: aiMessageId,
+        type: 'assistant',
+        content: '',
+        isLoading: true
+      }]);
+
+      // Get response stream
+      const stream = await apiService.generateToolResponse(currentTool!.navigation, {
+        prompt: followUpPrompt
+      });
+      
+      if (!stream) {
+        throw new Error('No response stream received');
+      }
+
+      // Read the stream
+      const reader = stream.getReader();
+      const decoder = new TextDecoder();
+      setFollowUpPrompt('');
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        
+        // Update AI message with new chunk
+        setMessages(prev => prev.map(msg => 
+          msg.id === aiMessageId 
+            ? { ...msg, content: msg.content + chunk, isLoading: false }
+            : msg
+        ));
+      }
+    } catch (error) {
+      console.error('Error with follow-up:', error);
+      // Show error message in the chat
+      setMessages(prev => [...prev.slice(0, -1), {
+        id: Date.now().toString(),
+        type: 'assistant',
+        content: 'Sorry, I encountered an error while processing your request. Please try again.',
+        isError: true
+      }]);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleReset = () => {
+    setFormKey(prev => prev + 1);
+  };
+
   if (toolsLoading) {
     return (
       <div className="min-h-screen bg-background dark:bg-dark-background flex items-center justify-center">
@@ -61,71 +195,6 @@ export function ToolPage() {
   }
 
   const IconComponent = getIconComponent(currentTool.icon);
-
-  const handleToolSubmit = async (prompt: string) => {
-    try {
-      setGenerating(true);
-      setShowInputModal(false);
-      
-      // Add user message
-      setMessages(prev => [...prev, {
-        id: Date.now().toString(),
-        type: 'user',
-        content: prompt
-      }]);
-
-      const result = await handleGenerate(prompt);
-      
-      if (result) {
-        // Add AI response
-        setMessages(prev => [...prev, {
-          id: (Date.now() + 1).toString(),
-          type: 'assistant',
-          content: result
-        }]);
-      }
-    } catch (error) {
-      console.error('Error generating response:', error);
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!followUpPrompt.trim() || generating) return;
-
-    try {
-      setGenerating(true);
-      
-      // Add user message
-      setMessages(prev => [...prev, {
-        id: Date.now().toString(),
-        type: 'user',
-        content: followUpPrompt
-      }]);
-
-      const result = await handleFollowUp(followUpPrompt);
-      setFollowUpPrompt('');
-      
-      if (result) {
-        // Add AI response
-        setMessages(prev => [...prev, {
-          id: (Date.now() + 1).toString(),
-          type: 'assistant',
-          content: result
-        }]);
-      }
-    } catch (error) {
-      console.error('Error with follow-up:', error);
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  const handleReset = () => {
-    setFormKey(prev => prev + 1); // Force form reset
-  };
 
   return (
     <>
@@ -178,7 +247,6 @@ export function ToolPage() {
                   setShowExportMenu={setShowExportMenu}
                   copiedMessageId={copiedMessageId}
                 />
-                {generating && <LoadingIndicator />}
               </div>
 
               {/* Input Area */}

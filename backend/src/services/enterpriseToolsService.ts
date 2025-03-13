@@ -1,53 +1,23 @@
 import llm from '../utils/llm';
+import { getDocumentsFromVectorStore } from "../utils/vectorStore";
 
-export const generateLessonPlan = async (
-  lessonPlanData: {
-    subject: string;
-    gradeLevel: string;
-    topic: string;
-    learningObjectives: string;
-  },
-  sendChunk: (chunk: string) => void
-): Promise<void> => {
-  const prompt = `
-    You are an expert educator and curriculum designer. Your task is to generate a highly detailed and structured lesson plan.
+export const processQuery = async (school: string, subject: string, question: string): Promise<string> => {
+    const context = await getDocumentsFromVectorStore(school, subject, question);
 
-    ## **Lesson Plan Requirements**
-    - **Subject**: ${lessonPlanData.subject}
-    - **Grade Level**: ${lessonPlanData.gradeLevel}
-    - **Topic**: ${lessonPlanData.topic}
-    - **Learning Objectives**: ${lessonPlanData.learningObjectives}
+    const prompt = `
+        Answer the following question using the provided context.
+        Provide only the final answer without showing your reasoning.
+        
+        Context:
+        ${context}
+        
+        Question: ${question}
+    `;
 
-    ## **Lesson Plan Format**
-    1. **Lesson Title**
-    2. **Lesson Duration**
-    3. **Lesson Overview**
-    4. **Materials Needed**
-    5. **Step-by-Step Lesson Procedure** (Introduction → Main Activity → Assessment → Closing)
-    6. **Differentiation Strategies**
-    7. **Homework/Extensions**
-    8. **Teacher Notes & Tips**
+    const response = await llm._call(prompt, {});
+    console.log("LLM Response:", response);
+    return response;
 
-    ### **Now generate a complete lesson plan based on the given details.**
-  `;
-
-  console.log("prompt", prompt)
-
-  console.log("🤖 Streaming AI response for prompt...");
-
-  try {
-    //const stream = await llm.stream(prompt, {});
-
-      for await (const chunk of llm._streamResponseChunks(prompt, {})) {
-          sendChunk(chunk.text); // Ensure chunk.text exists
-      }
-
-    console.log("✅ Streaming complete.");
-  } catch (error) {
-    console.error("❌ Error in streaming lesson plan:", error);
-    throw new Error("Failed to stream lesson plan.");
-  }
-};
     // function extractFinalAnswer(response: string): string {
     //     // Remove chain-of-thought markers if present
     //     return response.replace(/<think>.*<\/think>/s, '').trim();
@@ -71,6 +41,7 @@ export const generateLessonPlan = async (
     // console.log("Full streamed response:", fullResponse);
     // return fullResponse;
 
+};
 
 //todo implement buffer functionality for chat capability
 

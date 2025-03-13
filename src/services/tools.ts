@@ -11,7 +11,7 @@ import {
   where
 } from 'firebase/firestore';
 import type { Tool } from '../types';
-import {PLAN} from "../utils/constants.ts";
+import { PLAN } from "../utils/constants.ts";
 
 export class ToolService {
   private static instance: ToolService;
@@ -27,11 +27,9 @@ export class ToolService {
   }
 
   private cleanToolData(data: any): any {
-    // Remove undefined and null values
     const cleanedData = Object.entries(data).reduce((acc, [key, value]) => {
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
-          // Clean array items
           acc[key] = value.map(item => {
             if (item && typeof item === 'object') {
               return this.cleanToolData(item);
@@ -39,7 +37,6 @@ export class ToolService {
             return item;
           }).filter(Boolean);
         } else if (value && typeof value === 'object') {
-          // Clean nested objects
           acc[key] = this.cleanToolData(value);
         } else {
           acc[key] = value;
@@ -86,10 +83,15 @@ export class ToolService {
       if (!field.type || !['input', 'textarea', 'select'].includes(field.type)) {
         throw new Error(`Field ${index + 1} has an invalid type`);
       }
-      if (field.type === 'select' && (!Array.isArray(field.options) || field.options.length === 0)) {
+      // Only validate options for non-subject select fields
+      if (field.type === 'select' && !field.isSubjectField && (!Array.isArray(field.options) || field.options.length === 0)) {
         throw new Error(`Field ${index + 1} (select) must have options`);
       }
     });
+  }
+
+  private getToolNavigation(tool: Partial<Tool>): string {
+    return tool.navigation || tool.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || '';
   }
 
   async getAllTools(): Promise<Tool[]> {
@@ -101,7 +103,7 @@ export class ToolService {
         return {
           ...data,
           id: doc.id,
-          navigation: data.navigation || doc.id.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+          navigation: this.getToolNavigation(data)
         } as Tool;
       });
     } catch (error) {
@@ -123,7 +125,7 @@ export class ToolService {
       return {
         ...data,
         id: snapshot.id,
-        navigation: data.navigation || snapshot.id.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+        navigation: this.getToolNavigation(data)
       } as Tool;
     } catch (error) {
       console.error('Error fetching tool:', error);
@@ -133,25 +135,25 @@ export class ToolService {
 
   async createTool(tool: Omit<Tool, 'id'>): Promise<string> {
     try {
-      // Clean and validate the data
       const cleanedData = this.cleanToolData(tool);
       this.validateToolData(cleanedData);
 
-      // Create a new document with auto-generated ID
       const toolsRef = collection(this.db, 'tools');
       const newToolRef = doc(toolsRef);
 
-      // Generate navigation if not provided
-      const navigation = cleanedData.navigation || 
-        cleanedData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-      // Add the document with the ID and navigation included in the data
-      await setDoc(newToolRef, {
+      const navigation = this.getToolNavigation({
         ...cleanedData,
-        id: newToolRef.id,
-        navigation
+        id: newToolRef.id
       });
 
+      const toolData = {
+        ...cleanedData,
+        id: newToolRef.id,
+        navigation,
+        isEnterprise: cleanedData.category === PLAN.ENTERPRISE
+      };
+
+      await setDoc(newToolRef, toolData);
       return newToolRef.id;
     } catch (error) {
       console.error('Error creating tool:', error);
@@ -161,21 +163,18 @@ export class ToolService {
 
   async updateTool(id: string, updates: Partial<Tool>): Promise<void> {
     try {
-      // Get current tool data
       const currentTool = await this.getToolById(id);
       if (!currentTool) {
         throw new Error('Tool not found');
       }
 
-      // Merge updates with current data
       const mergedData = {
         ...currentTool,
         ...updates,
-        id, // Ensure ID is preserved
-        navigation: updates.navigation || currentTool.navigation // Preserve or update navigation
+        id,
+        navigation: this.getToolNavigation({ ...currentTool, ...updates })
       };
 
-      // Clean and validate the merged data
       const cleanedData = this.cleanToolData(mergedData);
       this.validateToolData(cleanedData);
 
@@ -193,6 +192,26 @@ export class ToolService {
       await deleteDoc(toolRef);
     } catch (error) {
       console.error('Error deleting tool:', error);
+      throw error;
+    }
+  }
+
+  async getToolsBySchool(schoolId: string): Promise<Tool[]> {
+    try {
+      const toolsRef = collection(this.db, 'tools');
+      const q = query(toolsRef, where('schoolId', '==', schoolId));
+      const snapshot = await getDocs(q);
+      
+      return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          ...data,
+          id: doc.id,
+          navigation: this.getToolNavigation(data)
+        } as Tool;
+      });
+    } catch (error) {
+      console.error('Error fetching school tools:', error);
       throw error;
     }
   }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Plus, Minus } from 'lucide-react';
 import type { Tool, ToolField } from '../../../types';
-import {TOOL_CATEGORIES} from "../../../utils/constants.ts";
+import { PLAN, TOOL_CATEGORIES } from "../../../utils/constants.ts";
 
 interface EditToolModalProps {
   tool: Tool;
@@ -15,27 +15,37 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
   const [category, setCategory] = useState<Tool['category']>(tool.category);
   const [toolCategory, setToolCategory] = useState(tool.toolCategory);
   const [icon, setIcon] = useState(tool.icon);
+  const [navigation, setNavigation] = useState(tool.navigation);
   const [fields, setFields] = useState<ToolField[]>(tool.fields);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const addField = () => {
-    setFields([
-      ...fields,
-      {
-        label: '',
-        placeholder: '',
-        type: 'input'
-      }
-    ]);
+    const newField: ToolField = {
+      label: '',
+      placeholder: '',
+      type: 'input'
+    };
+
+    // If it's an enterprise tool, add a subject selection field if it doesn't exist
+    if (category === PLAN.ENTERPRISE && !fields.some(f => f.isSubjectField)) {
+      newField.type = 'select';
+      newField.label = 'Subject';
+      newField.placeholder = 'Select a subject';
+      newField.isSubjectField = true;
+    }
+
+    setFields([...fields, newField]);
   };
 
   const removeField = (index: number) => {
+    // Don't allow removing subject field for enterprise tools
+    if (fields[index].isSubjectField) return;
     setFields(fields.filter((_, i) => i !== index));
   };
 
   const updateField = (index: number, updates: Partial<ToolField>) => {
-    setFields(fields.map((field, i) => 
+    setFields(prev => prev.map((field, i) => 
       i === index ? { ...field, ...updates } : field
     ));
   };
@@ -69,7 +79,7 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
         setError('All fields must have a placeholder');
         return;
       }
-      if (field.type === 'select' && (!field.options || field.options.length === 0)) {
+      if (field.type === 'select' && !field.isSubjectField && (!field.options || field.options.length === 0)) {
         setError('Select fields must have options');
         return;
       }
@@ -83,12 +93,13 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
         category,
         toolCategory,
         icon,
+        navigation,
         fields
       });
       onClose();
     } catch (err) {
       console.error('Error updating tool:', err);
-      setError('Failed to update tool');
+      setError(err instanceof Error ? err.message : 'Failed to update tool');
     } finally {
       setLoading(false);
     }
@@ -96,19 +107,19 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
       <div className="relative min-h-screen flex items-center justify-center p-4">
-        <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-3xl p-8 border border-sage/10">
+        <div className="relative bg-white dark:bg-dark-nav rounded-2xl shadow-xl dark:shadow-dark-soft w-full max-w-3xl p-8 border border-sage/10 dark:border-dark-border">
           <div className="flex justify-between items-start mb-6">
-            <h3 className="text-2xl font-semibold text-primary-dark">Edit Tool</h3>
-            <button onClick={onClose} className="text-primary hover:text-primary-dark">
+            <h3 className="text-2xl font-semibold text-primary-dark dark:text-dark-text">Edit Tool</h3>
+            <button onClick={onClose} className="text-primary dark:text-dark-text-secondary hover:text-primary-dark dark:hover:text-dark-text">
               <X className="h-6 w-6" />
             </button>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-coral/20 border border-accent rounded-lg text-accent-dark">
+            <div className="mb-6 p-4 bg-coral/20 dark:bg-coral/10 border border-accent rounded-lg text-accent-dark">
               {error}
             </div>
           )}
@@ -116,39 +127,52 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-primary-dark mb-1">
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                   Tool Name
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                  className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                   placeholder="Enter tool name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-primary-dark mb-1">
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                   Icon
                 </label>
                 <input
                   type="text"
                   value={icon}
                   onChange={(e) => setIcon(e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                  className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                   placeholder="Icon name from Lucide"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-primary-dark mb-1">
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                   Category
                 </label>
                 <select
                   value={category}
-                  onChange={(e) => setCategory(e.target.value as Tool['category'])}
-                  className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                  onChange={(e) => {
+                    const newCategory = e.target.value as Tool['category'];
+                    setCategory(newCategory);
+                    
+                    // Add subject field for enterprise tools
+                    if (newCategory === PLAN.ENTERPRISE && !fields.some(f => f.isSubjectField)) {
+                      setFields(prev => [{
+                        label: 'Subject',
+                        placeholder: 'Select a subject',
+                        type: 'select',
+                        isSubjectField: true
+                      }, ...prev]);
+                    }
+                  }}
+                  className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                 >
                   <option value="free">Free</option>
                   <option value="plus">Plus</option>
@@ -157,29 +181,42 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-primary-dark mb-1">
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                   Tool Category
                 </label>
                 <select
                   value={toolCategory}
                   onChange={(e) => setToolCategory(e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                  className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                 >
                   {(TOOL_CATEGORIES.filter(category => category !== 'all').map((toolCategory) => (
-                      <option key={toolCategory} value={toolCategory}>{toolCategory}</option>
+                    <option key={toolCategory} value={toolCategory}>{toolCategory}</option>
                   )))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
+                  Navigation URL
+                </label>
+                <input
+                  type="text"
+                  value={navigation}
+                  onChange={(e) => setNavigation(e.target.value)}
+                  className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
+                  placeholder="Custom URL path (optional)"
+                />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-primary-dark mb-1">
+              <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                 Description
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                 rows={3}
                 placeholder="Enter tool description"
               />
@@ -187,13 +224,13 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
 
             <div>
               <div className="flex items-center justify-between mb-4">
-                <label className="block text-sm font-medium text-primary-dark">
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text">
                   Fields
                 </label>
                 <button
                   type="button"
                   onClick={addField}
-                  className="flex items-center text-accent hover:text-accent-dark"
+                  className="flex items-center text-accent hover:text-accent-dark dark:text-accent dark:hover:text-accent-dark"
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Field
@@ -202,45 +239,48 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
 
               <div className="space-y-4">
                 {fields.map((field, index) => (
-                  <div key={index} className="flex items-start space-x-4 p-4 bg-sage/5 rounded-lg">
+                  <div key={index} className="flex items-start space-x-4 p-4 bg-sage/5 dark:bg-dark-surface rounded-lg">
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-primary-dark mb-1">
+                        <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                           Label
                         </label>
                         <input
                           type="text"
                           value={field.label}
                           onChange={(e) => updateField(index, { label: e.target.value })}
-                          className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                          className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                           placeholder="Field label"
+                          disabled={field.isSubjectField}
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-primary-dark mb-1">
+                        <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                           Placeholder
                         </label>
                         <input
                           type="text"
                           value={field.placeholder}
                           onChange={(e) => updateField(index, { placeholder: e.target.value })}
-                          className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                          className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                           placeholder="Field placeholder"
+                          disabled={field.isSubjectField}
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-primary-dark mb-1">
+                        <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                           Type
                         </label>
                         <select
                           value={field.type}
                           onChange={(e) => updateField(index, { 
                             type: e.target.value as ToolField['type'],
-                            options: e.target.value === 'select' ? [''] : undefined
+                            options: e.target.value === 'select' && !field.isSubjectField ? [''] : undefined
                           })}
-                          className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                          className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
+                          disabled={field.isSubjectField}
                         >
                           <option value="input">Input</option>
                           <option value="textarea">Textarea</option>
@@ -248,9 +288,9 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
                         </select>
                       </div>
 
-                      {field.type === 'select' && (
+                      {field.type === 'select' && !field.isSubjectField && (
                         <div>
-                          <label className="block text-sm font-medium text-primary-dark mb-1">
+                          <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                             Options (comma-separated)
                           </label>
                           <input
@@ -259,7 +299,7 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
                             onChange={(e) => updateField(index, { 
                               options: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
                             })}
-                            className="w-full px-4 py-2 border-2 border-sage/30 rounded-lg focus:border-accent focus:ring-accent"
+                            className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                             placeholder="Option 1, Option 2, Option 3"
                           />
                         </div>
@@ -269,7 +309,8 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
                     <button
                       type="button"
                       onClick={() => removeField(index)}
-                      className="p-2 text-accent hover:text-accent-dark"
+                      className="p-2 text-accent hover:text-accent-dark dark:text-accent dark:hover:text-accent-dark"
+                      disabled={field.isSubjectField}
                     >
                       <Minus className="h-4 w-4" />
                     </button>
@@ -282,7 +323,7 @@ export function EditToolModal({ tool, onClose, onSave }: EditToolModalProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-primary hover:text-primary-dark"
+                className="px-4 py-2 text-primary dark:text-dark-text-secondary hover:text-primary-dark dark:hover:text-dark-text"
               >
                 Cancel
               </button>

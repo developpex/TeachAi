@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Plus, Minus } from 'lucide-react';
 import type { Tool, ToolField } from '../../../types';
-import {PLAN, TOOL_CATEGORIES} from "../../../utils/constants.ts";
+import { PLAN, TOOL_CATEGORIES } from "../../../utils/constants.ts";
 
 interface CreateToolModalProps {
   isOpen: boolean;
@@ -21,22 +21,31 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
   const [loading, setLoading] = useState(false);
 
   const addField = () => {
-    setFields([
-      ...fields,
-      {
-        label: '',
-        placeholder: '',
-        type: 'input'
-      }
-    ]);
+    const newField: ToolField = {
+      label: '',
+      placeholder: '',
+      type: 'input'
+    };
+
+    // If it's an enterprise tool, add a subject selection field
+    if (category === PLAN.ENTERPRISE && !fields.some(f => f.isSubjectField)) {
+      newField.type = 'select';
+      newField.label = 'Subject';
+      newField.placeholder = 'Select a subject';
+      newField.isSubjectField = true;
+    }
+
+    setFields([...fields, newField]);
   };
 
   const removeField = (index: number) => {
+    // Don't allow removing subject field for enterprise tools
+    if (fields[index].isSubjectField) return;
     setFields(fields.filter((_, i) => i !== index));
   };
 
   const updateField = (index: number, updates: Partial<ToolField>) => {
-    setFields(fields.map((field, i) => 
+    setFields(prev => prev.map((field, i) => 
       i === index ? { ...field, ...updates } : field
     ));
   };
@@ -70,7 +79,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
         setError('All fields must have a placeholder');
         return;
       }
-      if (field.type === 'select' && (!field.options || field.options.length === 0)) {
+      if (field.type === 'select' && !field.isSubjectField && (!field.options || field.options.length === 0)) {
         setError('Select fields must have options');
         return;
       }
@@ -78,7 +87,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
 
     try {
       setLoading(true);
-      await onCreate({
+      const toolData: Omit<Tool, 'id'> = {
         name: name.trim(),
         description: description.trim(),
         category,
@@ -86,7 +95,9 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
         icon,
         navigation: navigation.trim() || name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         fields
-      });
+      };
+
+      await onCreate(toolData);
       
       // Reset form
       setName('');
@@ -99,7 +110,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
       onClose();
     } catch (err) {
       console.error('Error creating tool:', err);
-      setError('Failed to create tool');
+      setError(err instanceof Error ? err.message : 'Failed to create tool');
     } finally {
       setLoading(false);
     }
@@ -143,19 +154,6 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
 
               <div>
                 <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
-                  Navigation URL
-                </label>
-                <input
-                  type="text"
-                  value={navigation}
-                  onChange={(e) => setNavigation(e.target.value)}
-                  className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
-                  placeholder="Custom URL path (optional)"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                   Icon
                 </label>
                 <input
@@ -173,7 +171,20 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
                 </label>
                 <select
                   value={category}
-                  onChange={(e) => setCategory(e.target.value as Tool['category'])}
+                  onChange={(e) => {
+                    const newCategory = e.target.value as Tool['category'];
+                    setCategory(newCategory);
+                    
+                    // Add subject field for enterprise tools
+                    if (newCategory === PLAN.ENTERPRISE && !fields.some(f => f.isSubjectField)) {
+                      setFields(prev => [{
+                        label: 'Subject',
+                        placeholder: 'Select a subject',
+                        type: 'select',
+                        isSubjectField: true
+                      }, ...prev]);
+                    }
+                  }}
                   className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                 >
                   <option value="free">Free</option>
@@ -192,9 +203,22 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
                   className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                 >
                   {(TOOL_CATEGORIES.filter(category => category !== 'all').map((toolCategory) => (
-                      <option key={toolCategory} value={toolCategory}>{toolCategory}</option>
+                    <option key={toolCategory} value={toolCategory}>{toolCategory}</option>
                   )))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
+                  Navigation URL
+                </label>
+                <input
+                  type="text"
+                  value={navigation}
+                  onChange={(e) => setNavigation(e.target.value)}
+                  className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
+                  placeholder="Custom URL path (optional)"
+                />
               </div>
             </div>
 
@@ -240,6 +264,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
                           onChange={(e) => updateField(index, { label: e.target.value })}
                           className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                           placeholder="Field label"
+                          disabled={field.isSubjectField}
                         />
                       </div>
 
@@ -253,6 +278,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
                           onChange={(e) => updateField(index, { placeholder: e.target.value })}
                           className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
                           placeholder="Field placeholder"
+                          disabled={field.isSubjectField}
                         />
                       </div>
 
@@ -264,9 +290,10 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
                           value={field.type}
                           onChange={(e) => updateField(index, { 
                             type: e.target.value as ToolField['type'],
-                            options: e.target.value === 'select' ? [''] : undefined
+                            options: e.target.value === 'select' && !field.isSubjectField ? [''] : undefined
                           })}
                           className="w-full px-4 py-2 border-2 border-sage/30 dark:border-dark-border rounded-lg text-primary-dark dark:text-dark-text bg-white dark:bg-dark-surface focus:outline-none focus:ring-accent focus:border-accent"
+                          disabled={field.isSubjectField}
                         >
                           <option value="input">Input</option>
                           <option value="textarea">Textarea</option>
@@ -274,7 +301,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
                         </select>
                       </div>
 
-                      {field.type === 'select' && (
+                      {field.type === 'select' && !field.isSubjectField && (
                         <div>
                           <label className="block text-sm font-medium text-primary-dark dark:text-dark-text mb-1">
                             Options (comma-separated)
@@ -296,6 +323,7 @@ export function CreateToolModal({ isOpen, onClose, onCreate }: CreateToolModalPr
                       type="button"
                       onClick={() => removeField(index)}
                       className="p-2 text-accent hover:text-accent-dark dark:text-accent dark:hover:text-accent-dark"
+                      disabled={field.isSubjectField}
                     >
                       <Minus className="h-4 w-4" />
                     </button>

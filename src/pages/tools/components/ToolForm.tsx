@@ -1,28 +1,40 @@
 import React, { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
-import type { Tool, ToolField } from '../../../types';
+import type {Tool, ToolField} from '../../../types';
 
 interface ToolFormProps {
   tool: Tool;
-  onSubmit: (prompt: string) => void;
+  onSubmit: (formData: Record<string, string>) => void;
   loading: boolean;
   onReset?: () => void;
 }
 
 export function ToolForm({ tool, onSubmit, loading, onReset }: ToolFormProps) {
   const [formData, setFormData] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string | null>(null);
+
+  const toCamelCase = (str: string) => {
+    return str
+        .replace(/\s(.)/g, (match) => match.toUpperCase()) // Capitalize letters after spaces
+        .replace(/\s/g, '') // Remove spaces
+        .replace(/^(.)/, (match) => match.toLowerCase()); // Lowercase first letter
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setError(null);
+
+    const formattedData = Object.fromEntries(
+        Object.entries(formData).map(([key, value]) => [toCamelCase(key), value])
+    );
+
+    console.log(formattedData);
+
     try {
-      const prompt = `Tool: ${tool.name}\n\n${Object.entries(formData)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join('\n')}`;
-      
-      onSubmit(prompt);
+      onSubmit(formattedData);
     } catch (error) {
-      console.error('Error generating response:', error);
+      console.error('Error submitting form:', error);
+      setError(error instanceof Error ? error.message : 'Failed to submit form');
     }
   };
 
@@ -35,6 +47,7 @@ export function ToolForm({ tool, onSubmit, loading, onReset }: ToolFormProps) {
 
   const handleReset = () => {
     setFormData({});
+    setError(null);
     if (onReset) {
       onReset();
     }
@@ -62,7 +75,7 @@ export function ToolForm({ tool, onSubmit, loading, onReset }: ToolFormProps) {
             onChange={(e) => handleInputChange(field.label, e.target.value)}
             className={baseInputClasses}
           >
-            <option value="">Select {field.label.toLowerCase()}</option>
+            <option value="">{field.placeholder}</option>
             {field.options?.map((option) => (
               <option key={option} value={option}>
                 {option}
@@ -90,6 +103,12 @@ export function ToolForm({ tool, onSubmit, loading, onReset }: ToolFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      {error && (
+        <div className="p-4 bg-coral/20 dark:bg-coral/10 border border-accent rounded-lg text-accent-dark">
+          {error}
+        </div>
+      )}
+
       {/* Regular inputs in a grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {regularFields.map((field, index) => (
@@ -117,6 +136,15 @@ export function ToolForm({ tool, onSubmit, loading, onReset }: ToolFormProps) {
       )}
 
       <div className="flex justify-end space-x-4">
+        <button
+          type="button"
+          onClick={handleReset}
+          className="px-4 py-2 text-primary dark:text-dark-text-secondary hover:text-primary-dark dark:hover:text-dark-text flex items-center"
+          disabled={loading}
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Reset
+        </button>
         <button
           type="submit"
           disabled={loading}
