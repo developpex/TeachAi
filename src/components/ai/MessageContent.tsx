@@ -19,14 +19,14 @@ export function MessageContent({ type, content }: MessageContentProps) {
 
   if (type === 'assistant') {
     return (
-      <div ref={contentRef}>
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          className="markdown-content prose prose-sm max-w-none dark:prose-invert dark:text-dark-text"
-        >
-          {content}
-        </ReactMarkdown>
-      </div>
+        <div ref={contentRef}>
+          <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              className="markdown-content prose prose-sm max-w-none dark:prose-invert dark:text-dark-text"
+          >
+            {content}
+          </ReactMarkdown>
+        </div>
     );
   }
 

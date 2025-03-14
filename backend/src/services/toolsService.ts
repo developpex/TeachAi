@@ -62,15 +62,6 @@ export const generateLessonPlan = async (
     // Get the answer from the LLM
 
 
-    // todo: this is the correct one for streams
-    // Get the answer from the LLM
-    // let fullResponse = "";
-    // for await (const chunk of llm._streamResponseChunks(prompt, {})) {
-    //     fullResponse += chunk.text;
-    // }
-    // console.log("Full streamed response:", fullResponse);
-    // return fullResponse;
-
 
 //todo implement buffer functionality for chat capability
 

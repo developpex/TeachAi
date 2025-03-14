@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { jsPDF } from 'jspdf';
-import { formatTextForCopy } from '../utils/formatters';
 
 export function useMessageExport() {
   const [showExportMenu, setShowExportMenu] = useState<string | null>(null);
@@ -8,8 +7,7 @@ export function useMessageExport() {
 
   const handleCopyMessage = async (content: string, messageId: string) => {
     try {
-      const text = formatTextForCopy(content);
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(content);
       setCopiedMessageId(messageId);
       setTimeout(() => setCopiedMessageId(null), 2000);
     } catch (error) {
@@ -19,11 +17,9 @@ export function useMessageExport() {
 
   const handleExport = async (content: string, format: 'text' | 'pdf') => {
     try {
-      const formattedText = formatTextForCopy(content);
-      
       switch (format) {
         case 'text': {
-          const blob = new Blob([formattedText], { type: 'text/plain' });
+          const blob = new Blob([content], { type: 'text/plain' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
@@ -36,8 +32,31 @@ export function useMessageExport() {
         }
         case 'pdf': {
           const pdf = new jsPDF();
-          const splitText = pdf.splitTextToSize(formattedText, 180);
-          pdf.text(splitText, 15, 15);
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+          const margin = 15;
+          const maxWidth = pageWidth - (margin * 2);
+          const lineHeight = 7;
+
+          // Split text into lines that fit the page width
+          const lines = pdf.splitTextToSize(content, maxWidth);
+          let currentPage = 1;
+          let y = margin;
+
+          // Add lines to pages
+          for (let i = 0; i < lines.length; i++) {
+            // Check if we need a new page
+            if (y + lineHeight > pageHeight - margin) {
+              pdf.addPage();
+              currentPage++;
+              y = margin;
+            }
+
+            // Add the line
+            pdf.text(lines[i], margin, y);
+            y += lineHeight;
+          }
+
           pdf.save('response.pdf');
           break;
         }

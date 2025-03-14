@@ -33,7 +33,7 @@
 
 /* Markdown Content Styling */
 .markdown-content {
-  @apply text-primary;
+  @apply text-primary dark:text-dark-text;
 }
 
 .markdown-content h1,
@@ -42,7 +42,7 @@
 .markdown-content h4,
 .markdown-content h5,
 .markdown-content h6 {
-  @apply text-primary-dark font-bold mb-4;
+  @apply text-primary-dark dark:text-dark-text font-bold mb-4;
 }
 
 .markdown-content h1 {
@@ -71,11 +71,11 @@
 }
 
 .markdown-content code {
-  @apply bg-sage/10 rounded px-1 py-0.5 text-sm;
+  @apply bg-sage/10 dark:bg-dark-surface rounded px-1 py-0.5 text-sm;
 }
 
 .markdown-content pre {
-  @apply bg-sage/10 rounded p-4 mb-4 overflow-x-auto;
+  @apply bg-sage/10 dark:bg-dark-surface rounded p-4 mb-4 overflow-x-auto;
 }
 
 .markdown-content blockquote {
@@ -83,19 +83,19 @@
 }
 
 .markdown-content hr {
-  @apply my-6 border-sage/20;
+  @apply my-6 border-sage/20 dark:border-dark-border;
 }
 
 .markdown-content table {
-  @apply min-w-full divide-y divide-sage/20 mb-4;
+  @apply min-w-full divide-y divide-sage/20 dark:divide-dark-border mb-4;
 }
 
 .markdown-content th {
-  @apply px-4 py-2 bg-sage/10 text-primary-dark font-medium;
+  @apply px-4 py-2 bg-sage/10 dark:bg-dark-surface text-primary-dark dark:text-dark-text font-medium;
 }
 
 .markdown-content td {
-  @apply px-4 py-2 border-t border-sage/10;
+  @apply px-4 py-2 border-t border-sage/10 dark:border-dark-border;
 }
 
 .markdown-content a {
@@ -103,5 +103,5 @@
 }
 
 .markdown-content img {
-  @apply rounded-lg shadow-soft max-w-full h-auto my-4;
+  @apply rounded-lg shadow-soft dark:shadow-dark-soft max-w-full h-auto my-4;
 }
