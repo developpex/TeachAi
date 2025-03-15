@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTools } from '../../hooks/useTools';
-import { Tool } from '../../types';
 import { ToolForm } from './components/ToolForm';
 import { getIconComponent } from '../../utils/icons';
 import { MetaTags } from '../../components/shared/MetaTags';
@@ -11,6 +10,7 @@ import { MessageInput } from '../../components/ai/MessageInput';
 import { useMessageExport } from '../../hooks/useMessageExport';
 import { LoadingSpinner } from '../../components/shared/LoadingSpinner';
 import { APIService } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 export function ToolPage() {
   const { navigation } = useParams();
@@ -22,6 +22,7 @@ export function ToolPage() {
   const [showInputModal, setShowInputModal] = useState(true);
   const [formKey, setFormKey] = useState(0);
   const apiService = APIService.getInstance();
+  const { user, userProfile } = useAuth();
   const {
     showExportMenu,
     setShowExportMenu,
@@ -46,10 +47,29 @@ export function ToolPage() {
     return `Generate a lesson plan for ${data.Subject} (${data['Grade Level']}) focusing on ${data.Topic}. Learning objectives: ${data['Learning Objectives']}`;
   };
 
+  const handleClearConversation = async () => {
+    try {
+      await APIService.getInstance().clearConversation(currentTool!.id, user?.uid || 'anonymus');
+    } catch (error) {
+      console.error("Error clearing conversation:", error);
+    }
+  };
+
   const handleToolSubmit = async (formData: Record<string, any>) => {
     try {
       setShowInputModal(false);
       setGenerating(true);
+
+      // Add metadata to form data
+      const requestData = {
+        ...formData,
+        metadata: {
+          toolId: currentTool!.id,
+          toolName: currentTool!.name,
+          userId: user?.uid,
+          schoolId: userProfile?.school
+        }
+      };
 
       // Add loading message
       const loadingMessageId = Date.now().toString();
@@ -61,7 +81,7 @@ export function ToolPage() {
       }]);
 
       // Get response stream
-      const stream = await apiService.generateToolResponse(currentTool!.navigation, formData);
+      const stream = await apiService.generateToolResponse(currentTool!.navigation, requestData);
 
       if (!stream) {
         throw new Error('No response stream received');
@@ -72,7 +92,7 @@ export function ToolPage() {
       const decoder = new TextDecoder();
 
       // Replace loading message with actual content
-      setMessages(prev => [{
+      setMessages([{
         id: loadingMessageId,
         type: 'assistant',
         content: '',
@@ -130,10 +150,19 @@ export function ToolPage() {
         isLoading: true
       }]);
 
+      // Add metadata to request
+      const requestData = {
+        prompt: followUpPrompt,
+        metadata: {
+          toolId: currentTool!.id,
+          toolName: currentTool!.name,
+          userId: user?.uid,
+          schoolId: userProfile?.school
+        }
+      };
+
       // Get response stream
-      const stream = await apiService.generateToolResponse(currentTool!.navigation, {
-        prompt: followUpPrompt
-      });
+      const stream = await apiService.generateToolResponse(currentTool!.navigation, requestData);
 
       if (!stream) {
         throw new Error('No response stream received');
@@ -218,6 +247,7 @@ export function ToolPage() {
                 </div>
                 <Link
                     to="/tools"
+                    onClick={handleClearConversation}
                     className="inline-flex items-center px-4 py-2 text-accent hover:text-accent-dark dark:text-accent dark:hover:text-accent-dark transition-colors duration-200"
                 >
                   <ArrowLeft className="h-5 w-5 mr-2" />

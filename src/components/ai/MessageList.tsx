@@ -17,7 +17,6 @@ interface MessageListProps {
 
 export function MessageList({
                                 messages,
-                                isLoading,
                                 toolName,
                                 toolId,
                                 onCopyMessage,
