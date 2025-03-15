@@ -1,9 +1,11 @@
-import { Request, Response } from 'express';
 import { processLessonPlan } from './tools/lessonPlanHandler';
 
 // Tool handlers map
-export const toolHandlers: Record<string, (data: any) => Promise<any>> = {
-  'ai-lesson-planner': processLessonPlan,
+export const toolHandlers: Record<
+    string,
+    (params: { data: any; sendChunk: (chunk: string) => void }) => Promise<any>
+> = {
+  'ai-lesson-planner': ({ data, sendChunk }) => processLessonPlan(data, sendChunk),
 };
 
 export { processLessonPlan };

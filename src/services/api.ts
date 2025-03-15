@@ -16,7 +16,7 @@ export class APIService {
     try {
       const requestData = {
         ...formData,
-        isFollowUp: !!formData.prompt // Determine if this is a follow-up request
+        isFollowUp: !!formData.prompt
       };
 
       const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.tools}/${toolId}/generate`, {

@@ -1,6 +1,6 @@
-// backend/toolsRoute.ts
 import { Router } from 'express';
-import {clearConversation, generateLessonPlan, handleFollowUp} from '../services/toolsService';
+import { clearConversation } from '../services/toolsService';
+import { processLessonPlan } from '../controllers/tools/lessonPlanHandler';
 
 const router = Router();
 
@@ -8,30 +8,25 @@ router.post('/:toolId/generate', async (req, res) => {
     console.log(req.body);
     const { toolId } = req.params;
     const formData = req.body;
-    const userId = req.body.metadata?.userId || 'anonymous'; // Get user ID from request
-    console.log(userId);
-
-    console.log("Processing request...");
+    const userId = req.body.metadata?.userId || 'anonymous';
 
     try {
         res.setHeader('Content-Type', 'text/plain');
         res.setHeader('Transfer-Encoding', 'chunked');
 
-        if (formData.isFollowUp) {
-            // Handle follow-up question
-            console.log(userId);
-            await handleFollowUp(userId, formData.prompt, (chunk) => {
+        await processLessonPlan(
+            {
+                subject: formData.subject,
+                gradeLevel: formData.gradeLevel,
+                topic: formData.topic,
+                learningObjectives: formData.learningObjectives,
+                prompt: formData.isFollowUp ? formData.prompt : undefined,
+                userId,
+            },
+            (chunk) => {
                 res.write(chunk);
-            });
-        } else {
-            // Handle initial lesson plan generation
-            await generateLessonPlan({
-                ...formData,
-                userId
-            }, (chunk) => {
-                res.write(chunk);
-            });
-        }
+            }
+        );
 
         res.end();
     } catch (error) {
@@ -43,8 +38,6 @@ router.post('/:toolId/generate', async (req, res) => {
 router.post('/:toolId/clear', async (req, res) => {
     console.log("post req: ", req.body);
     const userId = req.body.userId || 'anonymous';
-
-    console.log("post userid: ", userId);
 
     try {
         clearConversation(userId);
