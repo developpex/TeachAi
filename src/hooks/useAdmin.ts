@@ -20,9 +20,7 @@ export function useAdmin() {
       }
 
       try {
-        console.log('Checking role for user:', user.uid);
         const userRole = await adminService.getUserRole(user.uid);
-        console.log('User role:', userRole);
         setRole(userRole);
       } catch (err) {
         console.error('Error checking role:', err);
@@ -33,7 +31,7 @@ export function useAdmin() {
     };
 
     checkRole();
-  }, [user]);
+  }, [adminService, user]);
 
   return {
     role,

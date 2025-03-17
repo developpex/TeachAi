@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import {useState, useMemo, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTools } from '../../hooks/useTools';
 import { ToolForm } from './components/ToolForm';
@@ -11,18 +11,15 @@ import { useMessageExport } from '../../hooks/useMessageExport';
 import { LoadingSpinner } from '../../components/shared/LoadingSpinner';
 import { APIService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import {useAdmin} from "../../hooks/useAdmin.ts";
+import {auth} from "../../config/firebase.ts";
 
 export function ToolPage() {
   const { navigation } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { adminService } = useAdmin();
   const { tools, loading: toolsLoading, error } = useTools({ filterByCategory: false });
-  const [messages, setMessages] = useState<any[]>([]);
-  const [followUpPrompt, setFollowUpPrompt] = useState('');
-  const [generating, setGenerating] = useState(false);
-  const [showInputModal, setShowInputModal] = useState(true);
-  const [formKey, setFormKey] = useState(0);
-  const apiService = APIService.getInstance();
-  const { user, userProfile } = useAuth();
   const {
     showExportMenu,
     setShowExportMenu,
@@ -30,6 +27,15 @@ export function ToolPage() {
     handleCopyMessage,
     handleExport
   } = useMessageExport();
+
+  const [messages, setMessages] = useState<any[]>([]);
+  const [schoolId, setSchoolId] = useState<string | null>(null);
+  const [followUpPrompt, setFollowUpPrompt] = useState('');
+  const [generating, setGenerating] = useState(false);
+  const [showInputModal, setShowInputModal] = useState(true);
+  const [formKey, setFormKey] = useState(0);
+
+  const apiService = APIService.getInstance();
 
   const currentTool = useMemo(() => {
     if (!toolsLoading && navigation && tools.length > 0) {
@@ -43,13 +49,49 @@ export function ToolPage() {
     return null;
   }, [navigation, tools, toolsLoading, navigate]);
 
-  const getFormattedPrompt = (data: Record<string, string>) => {
-    return `Generate a lesson plan for ${data.Subject} (${data['Grade Level']}) focusing on ${data.Topic}. Learning objectives: ${data['Learning Objectives']}`;
-  };
+  const toolRef = useRef(currentTool);
+  useEffect(() => {
+    if (currentTool) {
+      toolRef.current = currentTool;
+    }
+  }, [currentTool]);
+
+  useEffect(() => {
+    return () => {
+      if (toolRef.current && !toolsLoading) {
+        handleClearConversation();
+      }
+    };
+  }, [toolsLoading]);
+
+  useEffect(() => {
+    const initializeData = async () => {
+      try {
+        if (!auth.currentUser) return;
+
+        const userDoc = await adminService.getUserById(auth.currentUser.uid);
+        if (!userDoc?.schoolId) {
+          return;
+        }
+
+        setSchoolId(userDoc.schoolId);
+
+      } catch (err) {
+        console.error('Error initializing data:', err);
+      }
+    };
+
+    initializeData();
+  }, [adminService]);
 
   const handleClearConversation = async () => {
+    const tool = toolRef.current;
+    if (!tool) {
+      console.warn("handleClearConversation aborted: currentTool is null");
+      return;
+    }
     try {
-      await APIService.getInstance().clearConversation(currentTool!.id, user?.uid || 'anonymus');
+      await APIService.getInstance().clearConversation(tool.id, user?.uid || 'anonymous');
     } catch (error) {
       console.error("Error clearing conversation:", error);
     }
@@ -60,14 +102,13 @@ export function ToolPage() {
       setShowInputModal(false);
       setGenerating(true);
 
-      // Add metadata to form data
       const requestData = {
         ...formData,
         metadata: {
           toolId: currentTool!.id,
           toolName: currentTool!.name,
           userId: user?.uid,
-          schoolId: userProfile?.school
+          schoolId: schoolId
         }
       };
 
@@ -76,7 +117,7 @@ export function ToolPage() {
       setMessages([{
         id: loadingMessageId,
         type: 'assistant',
-        content: getFormattedPrompt(formData),
+        content: 'Generating response',
         isLoading: true
       }]);
 
@@ -157,7 +198,7 @@ export function ToolPage() {
           toolId: currentTool!.id,
           toolName: currentTool!.name,
           userId: user?.uid,
-          schoolId: userProfile?.school
+          schoolId: schoolId
         }
       };
 
@@ -247,7 +288,6 @@ export function ToolPage() {
                 </div>
                 <Link
                     to="/tools"
-                    onClick={handleClearConversation}
                     className="inline-flex items-center px-4 py-2 text-accent hover:text-accent-dark dark:text-accent dark:hover:text-accent-dark transition-colors duration-200"
                 >
                   <ArrowLeft className="h-5 w-5 mr-2" />

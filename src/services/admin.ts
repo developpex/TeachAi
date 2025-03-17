@@ -1,25 +1,20 @@
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  getDoc, 
-  query, 
-  where, 
-  getDocs,
-  Timestamp,
-  writeBatch,
-  setDoc,
+import {
+  collection,
   deleteDoc,
-  updateDoc
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
+  writeBatch
 } from 'firebase/firestore';
-import { 
-  getAuth,
-  createUserWithEmailAndPassword, 
-  sendPasswordResetEmail
-} from 'firebase/auth';
-import { initializeApp, deleteApp } from 'firebase/app';
-import type { School, User, CreateSchoolData } from '../types/admin';
-import { generatePassword } from '../utils/auth';
+import {createUserWithEmailAndPassword, getAuth, sendPasswordResetEmail} from 'firebase/auth';
+import {deleteApp, initializeApp} from 'firebase/app';
+import type {CreateSchoolData, School, User} from '../types/admin';
+import {generatePassword} from '../utils/auth';
 import {PLAN, ROLE} from "../utils/constants.ts";
 
 export class AdminService {
@@ -172,7 +167,6 @@ export class AdminService {
     }
 
     try {
-      console.log('Getting user role for:', userId);
       const userRef = doc(this.db, 'users', userId);
       const userDoc = await getDoc(userRef);
       
@@ -182,7 +176,6 @@ export class AdminService {
       }
 
       const userData = userDoc.data();
-      console.log('User data:', userData);
       return userData.role || null;
     } catch (error) {
       console.error('Error getting user role:', error);
@@ -197,7 +190,6 @@ export class AdminService {
     }
 
     try {
-      console.log('Getting user by ID:', userId);
       const userRef = doc(this.db, 'users', userId);
       const userDoc = await getDoc(userRef);
       
@@ -226,7 +218,6 @@ export class AdminService {
     }
 
     try {
-      console.log('Getting school by ID:', schoolId);
       const schoolRef = doc(this.db, 'schools', schoolId);
       const schoolDoc = await getDoc(schoolRef);
       
@@ -236,8 +227,7 @@ export class AdminService {
       }
 
       const schoolData = schoolDoc.data();
-      console.log('School data:', schoolData);
-      
+
       return {
         id: schoolDoc.id,
         ...schoolData
@@ -250,7 +240,6 @@ export class AdminService {
 
   public async getAllSchools(): Promise<School[]> {
     try {
-      console.log('Getting all schools');
       const schoolsRef = collection(this.db, 'schools');
       const snapshot = await getDocs(schoolsRef);
       
@@ -259,13 +248,10 @@ export class AdminService {
         return [];
       }
 
-      const schools = snapshot.docs.map(doc => ({
+      return snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       } as School));
-      
-      console.log('Found schools:', schools);
-      return schools;
     } catch (error) {
       console.error('Error getting schools:', error);
       throw new Error('Failed to fetch schools');
@@ -279,7 +265,6 @@ export class AdminService {
     }
 
     try {
-      console.log('Getting users for school:', schoolId);
       const usersQuery = query(
         collection(this.db, 'users'),
         where('schoolId', '==', schoolId)
@@ -291,13 +276,10 @@ export class AdminService {
         return [];
       }
 
-      const users = snapshot.docs.map(doc => ({
+      return snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       } as User));
-      
-      console.log('Found users:', users);
-      return users;
     } catch (error) {
       console.error('Error getting school users:', error);
       throw new Error('Failed to fetch school users');
