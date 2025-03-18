@@ -39,6 +39,7 @@ yarn-error.log*
 .idea/
 .DS_Store
 .bolt/
+*~
 
 # Misc
 *.bak

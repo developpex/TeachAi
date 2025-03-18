@@ -13,7 +13,6 @@ interface ToolsFiltersProps {
 }
 
 export function ToolsFilters({
-  availableCategories,
   selectedCategory,
   setSelectedCategory,
   selectedToolCategory,
@@ -22,11 +21,12 @@ export function ToolsFilters({
   setIsDropdownOpen,
   getToolCategoryLabel
 }: ToolsFiltersProps) {
+
   return (
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-center space-x-4 flex-wrap gap-2">
         {/* Pricing Categories - Always show all categories */}
-        {['all', 'free', 'plus', /*'enterprise'*/].map((category) => (
+        {['all', 'free', 'plus', 'enterprise'].map((category) => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}

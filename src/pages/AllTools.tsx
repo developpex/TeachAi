@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { ToolGrid } from '../components/tools/ToolGrid';
 import { ToolsHeader } from '../components/tools/ToolsHeader';
 import { ToolsSearch } from '../components/tools/ToolsSearch';
@@ -27,7 +26,6 @@ export function AllTools() {
   } = useToolsPage();
 
   const { usageLimit, loading: loadingUsage } = useToolUsage();
-  const navigate = useNavigate();
 
   if (loading || loadingUsage) {
     return (
@@ -70,6 +68,7 @@ export function AllTools() {
         <div className="space-y-12">
           <ToolGrid tools={categorizedTools.free} title="Free Tools" />
           <ToolGrid tools={categorizedTools.plus} title="Plus Tools" />
+          <ToolGrid tools={categorizedTools.enterprise} title="Enterprise Tools" />
         </div>
       </div>
     </div>
