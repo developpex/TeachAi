@@ -1,10 +1,10 @@
-import { 
-  getFirestore, 
-  doc, 
-  setDoc, 
-  updateDoc, 
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  updateDoc,
   deleteDoc,
-  Timestamp
+  Timestamp, getDoc
 } from 'firebase/firestore';
 import { 
   getAuth,
@@ -17,7 +17,7 @@ import {
 } from 'firebase/auth';
 import { initializeApp, deleteApp } from 'firebase/app';
 import { generatePassword } from '../utils/auth';
-import type { AddUserData } from '../types/admin';
+import type {AddUserData, User} from '../types/admin';
 import { PLAN } from "../utils/constants";
 
 export class UserService {
@@ -35,6 +35,34 @@ export class UserService {
       UserService.instance = new UserService();
     }
     return UserService.instance;
+  }
+
+  public async getUserById(userId: string): Promise<User | null> {
+    if (!userId) {
+      console.log('No user ID provided');
+      return null;
+    }
+
+    try {
+      const userRef = doc(this.db, 'users', userId);
+      const userDoc = await getDoc(userRef);
+
+      if (!userDoc.exists()) {
+        console.log('No user document found');
+        return null;
+      }
+
+      const userData = userDoc.data();
+      console.log('User data:', userData);
+
+      return {
+        id: userDoc.id,
+        ...userData
+      } as User;
+    } catch (error) {
+      console.error('Error getting user:', error);
+      return null;
+    }
   }
 
   public async sendPasswordReset(email: string): Promise<void> {

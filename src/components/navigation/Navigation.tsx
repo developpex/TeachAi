@@ -66,7 +66,7 @@ export function Navigation({ onToggle }: NavigationProps) {
   const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
   const path = location.pathname === '/' ? '/dashboard' : location.pathname;
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const { isOwner, isAdmin } = useAdmin();
   const { isDarkMode, toggleDarkMode } = useTheme();
 
