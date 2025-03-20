@@ -1,32 +1,27 @@
 import { Router } from 'express';
 import { clearConversation } from '../services/toolsService';
-import { processLessonPlan } from '../controllers/tools/lessonPlanHandler';
+import { toolHandlers } from '../controllers/toolsRegistry';
 
 const router = Router();
 
 router.post('/:toolId/generate', async (req, res) => {
-    console.log(req.body);
     const { toolId } = req.params;
     const formData = req.body;
-    const userId = req.body.metadata?.userId || 'anonymous';
+    // Attach userId if not already provided
+    formData.userId = formData.metadata?.userId || 'anonymous';
+
+    const handler = toolHandlers[toolId];
+    if (!handler) {
+        return res.status(400).json({ error: `Tool ${toolId} not supported` });
+    }
 
     try {
         res.setHeader('Content-Type', 'text/plain');
         res.setHeader('Transfer-Encoding', 'chunked');
 
-        await processLessonPlan(
-            {
-                subject: formData.subject,
-                gradeLevel: formData.gradeLevel,
-                topic: formData.topic,
-                learningObjectives: formData.learningObjectives,
-                prompt: formData.isFollowUp ? formData.prompt : undefined,
-                userId,
-            },
-            (chunk) => {
-                res.write(chunk);
-            }
-        );
+        await handler(formData, (chunk) => {
+            res.write(chunk);
+        });
 
         res.end();
     } catch (error) {

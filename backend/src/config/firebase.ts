@@ -21,7 +21,6 @@ const serviceAccount = {
 // Initialize Firebase Admin only if it hasn't been initialized yet
 if (!admin.apps.length) {
   try {
-    console.log('Initializing Firebase Admin...');
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount as admin.ServiceAccount)
   });

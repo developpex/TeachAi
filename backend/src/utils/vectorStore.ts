@@ -58,8 +58,16 @@ export async function getDocumentsFromVectorStore(
     console.log('vectorstore', vectorStore);
 
     // Create a retriever filtering by subject metadata
-    const retriever = vectorStore.asRetriever(10, {
-        subject: { $eq: subject }
+    // const retriever = vectorStore.asRetriever(10, {
+    //     subject: { $eq: subject }
+    // });
+
+    const retriever = vectorStore.asRetriever({
+        k: 5,
+        filter: {
+            subject: { $eq: subject }
+        },
+        searchType: 'similarity', // or 'similarity'
     });
 
     // Retrieve relevant document chunks (using _getRelevantDocuments if needed)

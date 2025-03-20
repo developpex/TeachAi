@@ -70,6 +70,7 @@ export function ToolPage() {
         if (!auth.currentUser) return;
 
         const userDoc = await adminService.getUserById(auth.currentUser.uid);
+        console.log(userDoc?.schoolId);
         if (!userDoc?.schoolId) {
           return;
         }
@@ -106,11 +107,14 @@ export function ToolPage() {
         ...formData,
         metadata: {
           toolId: currentTool!.id,
+          toolNavigation: currentTool!.navigation,
           toolName: currentTool!.name,
           userId: user?.uid,
           schoolId: schoolId
         }
       };
+
+      console.log(schoolId);
 
       // Add loading message
       const loadingMessageId = Date.now().toString();
@@ -196,11 +200,14 @@ export function ToolPage() {
         prompt: followUpPrompt,
         metadata: {
           toolId: currentTool!.id,
+          toolNavigation: currentTool!.navigation,
           toolName: currentTool!.name,
           userId: user?.uid,
           schoolId: schoolId
         }
       };
+
+      console.log(schoolId);
 
       // Get response stream
       const stream = await apiService.generateToolResponse(currentTool!.navigation, requestData);

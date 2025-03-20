@@ -2,7 +2,7 @@ import { CorsOptions } from 'cors';
 
 const corsOptions: CorsOptions = {
     origin: process.env.NODE_ENV === 'production'
-        ? ['https://your-production-domain.com']
+        ? ['https://developpex.com']
         : ['http://localhost:5173','http://localhost:5174', 'http://localhost:4173'],
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

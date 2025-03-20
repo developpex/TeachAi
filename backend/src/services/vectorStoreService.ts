@@ -1,55 +1,54 @@
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Document } from 'langchain/document';
 import { getVectorStore } from '../utils/vectorStore';
 import { v4 as uuidv4 } from 'uuid';
+import {GenericTextExtractor} from "../utils/GenericTextExtractor";
 
-export const uploadPDFService = async (filePath: string, school: string, subject: string): Promise<string> => {
-    console.log(`Starting processAndStorePDF for file: ${filePath}, school: ${school}, subject: ${subject}`);
+export const uploadPDFService = async (
+    filePath: string,
+    school: string,
+    subject: string
+): Promise<string> => {
+    console.log(`Starting upload for file: ${filePath}, school: ${school}, subject: ${subject}`);
 
-    // Generate a unique ID for the entire file
+    // Generate a unique file ID
     const fileId = uuidv4();
     console.log(`Generated fileId: ${fileId}`);
 
     try {
-        // Use LangChain's PDFLoader to load the PDF
+        // Load the PDF
         console.log('Loading PDF file...');
         const loader = new PDFLoader(filePath);
         const docs: Document[] = await loader.load();
         console.log(`Loaded ${docs.length} documents from PDF`);
 
-        // Optionally, further split the document(s) using a text splitter
-        console.log('Splitting documents...');
-        const splitter = new RecursiveCharacterTextSplitter({
-            chunkSize: 800,
-            chunkOverlap: 400,
-        });
-        const splittedDocs: Document[] = await splitter.splitDocuments(docs);
-        console.log(`Split into ${splittedDocs.length} chunks`);
+        // Use the generic extractor to process each document
+        const extractor = new GenericTextExtractor();
+        const processedDocs: Document[] = [];
+        for (const doc of docs) {
+            const extractedChunks = await extractor.extract(doc);
+            // Add metadata to each chunk
+            extractedChunks.forEach(chunk => {
+                chunk.metadata = {
+                    ...chunk.metadata,
+                    subject,
+                    fileId,
+                };
+            });
+            processedDocs.push(...extractedChunks);
+        }
+        console.log(`Processed into ${processedDocs.length} chunks`);
 
-        // Add school and course metadata to each chunk
-        console.log('Adding metadata to documents...');
-        const docsWithMetadata = splittedDocs.map((doc: Document) => ({
-            ...doc,
-            metadata: {
-                ...doc.metadata,
-                subject,
-                fileId,
-            },
-        }));
-        console.log(`Metadata:`, docsWithMetadata)
-        console.log(`Metadata added to ${docsWithMetadata.length} documents`);
-
-        // Get the vector store and add documents to it
+        // Add the documents to the vector store
         console.log('Fetching vector store...');
         const vectorStore = await getVectorStore(school);
         console.log('Adding documents to vector store...');
-        await vectorStore.addDocuments(docsWithMetadata);
+        await vectorStore.addDocuments(processedDocs);
         console.log('Documents successfully added to vector store');
 
         return fileId;
     } catch (error) {
-        console.error('Error in processAndStorePDF:', error);
+        console.error('Error in uploadPDFService:', error);
         throw error;
     }
 };

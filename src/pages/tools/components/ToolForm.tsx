@@ -125,7 +125,7 @@ export function ToolForm({ tool, onSubmit, loading, onReset }: ToolFormProps) {
               >
                 <option value="">{field.placeholder}</option>
                 {subjects.map(subject => (
-                    <option key={subject.id} value={subject.name}>
+                    <option key={subject.id} value={subject.id}>
                       {subject.name}
                     </option>
                 ))}
