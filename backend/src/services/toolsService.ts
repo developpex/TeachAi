@@ -18,8 +18,33 @@ export interface ToolConfig {
 const conversationChains = new Map<string, ConversationChain>();
 
 // Helper to generate a composite key.
-const getConversationKey = (userId: string): string =>
-    `${userId}`;
+const getConversationKey = (userId: string): string => `${userId}`;
+
+/**
+ * Extracts only the text after the last </think> tag.
+ */
+const filterAfterThink = (text: string): string => {
+    const lastThinkIndex = text.lastIndexOf('</think>');
+    if (lastThinkIndex !== -1) {
+        return text.substring(lastThinkIndex + '</think>'.length).trim();
+    }
+    return text;
+};
+
+/**
+ * Extracts only the latest turn from the conversation history.
+ * This assumes that the conversation contains multiple turns,
+ * and we only want the most recent output.
+ */
+const getLatestTurn = (history: string): string => {
+    // First, remove any internal AI thoughts.
+    const filteredText = filterAfterThink(history);
+    // Split by a marker that separates turns. In your example,
+    // the repeated output is introduced by the repeated 'Human:' marker.
+    // We split by 'Human:' and take the last segment.
+    const parts = filteredText.split('Human:');
+    return parts[parts.length - 1].trim();
+};
 
 // Generic Function to Run a Tool's Initial Request
 export const runToolInitial = async (
@@ -28,7 +53,10 @@ export const runToolInitial = async (
     inputData: any,
     sendChunk: (chunk: string) => void
 ): Promise<void> => {
+    console.log(`🔹 Received initial request for ${toolConfig.name} from user: ${userId}`);
+
     const initialInput = toolConfig.formatInitialInput(inputData);
+    console.log(`🔹 Formatted initial input:`, initialInput);
 
     const conversation = new ConversationChain({
         llm,
@@ -39,15 +67,11 @@ export const runToolInitial = async (
     const convKey = getConversationKey(userId);
 
     try {
-        // For the initial call there is no history.
         const fullPrompt = await toolConfig.promptTemplate.format({
             history: '',
             input: initialInput,
         });
-        console.log(
-            `Formatted fullPrompt for tool ${toolConfig.name} initial generation:`,
-            fullPrompt
-        );
+        console.log(`🔹 Full prompt generated for ${toolConfig.name}:`, fullPrompt);
 
         let fullResponse = '';
         const callbackManager = CallbackManager.fromHandlers({
@@ -59,16 +83,16 @@ export const runToolInitial = async (
 
         await conversation.call({ input: fullPrompt }, { callbacks: callbackManager });
 
-        // Save the conversation round.
+        // Save only the newsletter output (text after </think>)
+        const storedResponse = filterAfterThink(fullResponse);
+
         await conversation.memory.saveContext(
             { input: initialInput },
-            { response: fullResponse }
+            { response: storedResponse }
         );
 
-        // Store conversation chain.
         conversationChains.set(convKey, conversation);
-        console.log(`Storing conversation for key: ${convKey}`);
-        console.log(`✅ Initial ${toolConfig.name} streaming complete.`);
+        console.log(`✅ Stored conversation for key: ${convKey}`);
     } catch (error) {
         console.error(`❌ Error generating ${toolConfig.name}:`, error);
         throw new Error(`Failed to stream ${toolConfig.name}.`);
@@ -82,6 +106,8 @@ export const runToolFollowup = async (
     followup: string,
     sendChunk: (chunk: string) => void
 ): Promise<void> => {
+    console.log(`🔹 Received follow-up request for ${toolConfig.name} from user: ${userId}`);
+
     const convKey = getConversationKey(userId);
     let conversation = conversationChains.get(convKey);
 
@@ -95,17 +121,18 @@ export const runToolFollowup = async (
     }
 
     const wrappedFollowupInput = toolConfig.formatFollowupInput(followup);
-    console.log(`Wrapped follow-up prompt for ${toolConfig.name}:`, wrappedFollowupInput);
+    console.log(`🔹 Wrapped follow-up input:`, wrappedFollowupInput);
 
     try {
         const memoryVars = await conversation.memory.loadMemoryVariables({});
-        const history = memoryVars.history || '';
+        // Instead of using the entire history, get only the latest turn.
+        const history = getLatestTurn(memoryVars.history || '');
 
         const fullPrompt = await toolConfig.promptTemplate.format({
             history,
             input: wrappedFollowupInput,
         });
-        console.log(`Formatted fullPrompt for ${toolConfig.name} follow-up:`, fullPrompt);
+        console.log(`🔹 Full follow-up prompt generated:`, fullPrompt);
 
         let fullResponse = '';
         const callbackManager = CallbackManager.fromHandlers({
@@ -117,9 +144,12 @@ export const runToolFollowup = async (
 
         await conversation.call({ input: fullPrompt }, { callbacks: callbackManager });
 
+        // Extract and store only the text after the last </think> tag.
+        const storedResponse = filterAfterThink(fullResponse);
+
         await conversation.memory.saveContext(
             { input: wrappedFollowupInput },
-            { response: fullResponse }
+            { response: storedResponse }
         );
 
         console.log(`✅ Follow-up for ${toolConfig.name} complete.`);
@@ -132,9 +162,9 @@ export const runToolFollowup = async (
 // Clear Conversation Function
 export const clearConversation = (userId: string): void => {
     const convKey = getConversationKey(userId);
-    console.log(`Attempting to clear conversation for key: ${convKey}`);
+    console.log(`🔹 Attempting to clear conversation for key: ${convKey}`);
     const isClosed = conversationChains.delete(convKey);
     if (isClosed) {
-        console.log(`Closed conversation for user ${userId}`);
+        console.log(`✅ Closed conversation for user ${userId}`);
     }
 };
