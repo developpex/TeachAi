@@ -1,26 +1,15 @@
-import { Chroma } from "@langchain/community/vectorstores/chroma";
+import {Chroma} from "@langchain/community/vectorstores/chroma";
 import {OllamaEmbeddings} from "@langchain/ollama";
-import { Document } from "langchain/document";
+import {Document} from "langchain/document";
 
-// Use a simple in-memory map to cache stores by school.
 const stores: { [school: string]: Chroma } = {};
 
 export async function getVectorStore(school: string): Promise<Chroma> {
-    console.log(`Getting vector store for school: ${school}`);
+    const collectionName = `${school}_documents`;
 
-    // Normalize the school name: lowercase, remove special characters, replace spaces with underscores
-    const normalizedSchool = school
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, '_'); // Replace non-alphanumeric characters with '_'
-
-    const collectionName = `${normalizedSchool}_documents`;
-    console.log(`Normalized school name: ${normalizedSchool}, Collection name: ${collectionName}`);
-
-    // Return a cached store if it exists
-    if (stores[normalizedSchool]) {
-        console.log(`Returning cached vector store for school: ${normalizedSchool}`);
-        return stores[normalizedSchool];
+    if (stores[school]) {
+        console.log(`Returning cached vector store for school: ${school}`);
+        return stores[school];
     }
 
     const embeddings = new OllamaEmbeddings({
@@ -30,7 +19,7 @@ export async function getVectorStore(school: string): Promise<Chroma> {
 
     try {
         console.log(`Attempting to retrieve existing collection: ${collectionName}`);
-        stores[normalizedSchool] = await Chroma.fromExistingCollection(embeddings, {
+        stores[school] = await Chroma.fromExistingCollection(embeddings, {
             collectionName,
             url: 'http://localhost:8000',
         });
@@ -38,14 +27,14 @@ export async function getVectorStore(school: string): Promise<Chroma> {
     } catch (error) {
         console.error(error);
         console.warn(`Collection ${collectionName} not found. Creating a new one.`);
-        stores[normalizedSchool] = await Chroma.fromDocuments([], embeddings, {
+        stores[school] = await Chroma.fromDocuments([], embeddings, {
             collectionName,
             url: 'http://localhost:8000',
         });
     }
 
-    console.log(`Vector store ready for school: ${normalizedSchool}`);
-    return stores[normalizedSchool];
+    console.log(`Vector store ready for school: ${school}`);
+    return stores[school];
 }
 
 export async function getDocumentsFromVectorStore(
@@ -53,14 +42,7 @@ export async function getDocumentsFromVectorStore(
     subject: string,
     question: string
 ): Promise<string> {
-    // Retrieve the vector store instance for the school
     const vectorStore = await getVectorStore(school);
-    console.log('vectorstore', vectorStore);
-
-    // Create a retriever filtering by subject metadata
-    // const retriever = vectorStore.asRetriever(10, {
-    //     subject: { $eq: subject }
-    // });
 
     const retriever = vectorStore.asRetriever({
         k: 5,
@@ -70,14 +52,9 @@ export async function getDocumentsFromVectorStore(
         searchType: 'similarity', // or 'similarity'
     });
 
-    // Retrieve relevant document chunks (using _getRelevantDocuments if needed)
     const docs: Document[] = await retriever._getRelevantDocuments(question);
-    console.log('retrieved docs', docs);
 
-    // Process the documents to create a single context string
-    const context = prepareContextFromDocuments(docs);
-    console.log('Merged Context:', context);
-    return context;
+    return prepareContextFromDocuments(docs);
 }
 
 export function prepareContextFromDocuments(docs: Document[]): string {

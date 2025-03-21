@@ -25,7 +25,7 @@ router.post('/:toolId/generate', async (req, res) => {
 
         res.end();
     } catch (error) {
-        console.error(`❌ Error processing ${toolId}:`, error);
+        console.error(`Error processing ${toolId}:`, error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -38,7 +38,7 @@ router.post('/:toolId/clear', async (req, res) => {
         clearConversation(userId);
         res.status(200).json({ message: "Conversation cleared" });
     } catch (error) {
-        console.error(`❌ Error deleting conversation for userid ${userId}:`, error);
+        console.error(`Error deleting conversation for userid ${userId}:`, error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

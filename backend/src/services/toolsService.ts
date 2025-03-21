@@ -6,7 +6,7 @@ import {
     ChatPromptTemplate,
 } from '@langchain/core/prompts';
 
-// ----- Tool Configuration Interfaces -----
+// Tool Configuration Interfaces
 export interface ToolConfig {
     name: string;
     promptTemplate: ChatPromptTemplate;
@@ -14,15 +14,14 @@ export interface ToolConfig {
     formatFollowupInput: (followup: string) => string;
 }
 
-// ----- Conversation Chain Storage -----
-// Composite key: `${userId}` ensures conversations for different tools/users are separate.
+// Conversation Chain Storage
 const conversationChains = new Map<string, ConversationChain>();
 
 // Helper to generate a composite key.
 const getConversationKey = (userId: string): string =>
     `${userId}`;
 
-// ----- Generic Function to Run a Tool's Initial Request -----
+// Generic Function to Run a Tool's Initial Request
 export const runToolInitial = async (
     userId: string,
     toolConfig: ToolConfig,
@@ -76,7 +75,7 @@ export const runToolInitial = async (
     }
 };
 
-// ----- Generic Function to Handle a Follow-Up -----
+// Generic Function to Handle a Follow-Up
 export const runToolFollowup = async (
     userId: string,
     toolConfig: ToolConfig,
@@ -130,7 +129,7 @@ export const runToolFollowup = async (
     }
 };
 
-// ----- Clear Conversation Function -----
+// Clear Conversation Function
 export const clearConversation = (userId: string): void => {
     const convKey = getConversationKey(userId);
     console.log(`Attempting to clear conversation for key: ${convKey}`);

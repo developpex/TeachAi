@@ -19,7 +19,7 @@ export class UserService {
         // Delete the auth user
         try {
             await admin.auth().deleteUser(targetUID);
-        } catch (error: any) {
+        } catch (error) {
             if (error.code !== 'auth/user-not-found') {
                 throw new Error(error.message || 'Failed to delete user');
             }

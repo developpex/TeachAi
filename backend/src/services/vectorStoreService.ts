@@ -65,7 +65,7 @@ export const deletePDFService = async (school: string, fileId: string): Promise<
 
         const results = await vectorStore.collection.delete({
             where: {
-                fileId: { "$eq": fileId } // Ensure this matches the correct metadata field
+                fileId: { "$eq": fileId }
             }
         });
 

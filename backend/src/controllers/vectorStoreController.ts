@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response} from 'express';
 import { uploadPDFService, deletePDFService } from '../services/vectorStoreService';
 
-export const uploadPDF = async (req: Request, res: Response, next: NextFunction) => {
+export const uploadPDF = async (req: Request, res: Response) => {
     try {
         const { school, subject } = req.body;
         if (!req.file || !school || !subject) {
@@ -18,11 +18,7 @@ export const uploadPDF = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
-export const deletePDF = async (req: Request, res: Response, next: NextFunction) => {
-    console.log('Incoming DELETE request:');
-    console.log('Headers:', req.headers);
-    console.log('Raw Body:', req.body);
-
+export const deletePDF = async (req: Request, res: Response) => {
     if (!req.body || typeof req.body !== 'object') {
         return res.status(400).json({ error: 'Invalid or missing request body' });
     }

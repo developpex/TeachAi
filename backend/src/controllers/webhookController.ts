@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { StripeService } from '../services/stripeService';
 import stripe from '../config/stripe';
+import Stripe from 'stripe';
 
 export async function handleWebhook(req: Request, res: Response) {
   const sig = req.headers['stripe-signature'] as string;
-  let event;
+  let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET as string);

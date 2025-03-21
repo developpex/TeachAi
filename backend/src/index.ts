@@ -1,5 +1,5 @@
 import express from 'express';
-import {NextFunction, Response, Request} from "express";
+import {Response, Request} from "express";
 import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -31,7 +31,7 @@ app.use(cors(corsOptions));
 setupRoutes(app);
 
 // Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response) => {
   console.error(`[ERROR] ${err.name}: ${err.message}`);
 
   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;

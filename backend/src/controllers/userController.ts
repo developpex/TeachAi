@@ -16,7 +16,7 @@ export class UserController {
 
             const result = await UserService.deleteUser(req.user.uid, uid);
             return res.json(result);
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error deleting user:', error);
             res.status(500).json({ error: error.message || 'Failed to delete user' });
         }
