@@ -36,13 +36,12 @@ export function useSupport() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user || !userProfile) {
       setError('You must be logged in to submit a ticket');
       return;
     }
 
-    // Validate form
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
@@ -54,22 +53,28 @@ export function useSupport() {
       setError(null);
       setSuccess(false);
 
-      const ticketId = await supportService.createTicket({
+      const ticketData = {
         userId: user.uid,
         category: formData.category,
         subject: formData.subject.trim(),
         message: formData.message.trim(),
         email: user.email || '',
-        username: userProfile.fullName || user.email?.split('@')[0] || 'Anonymous'
-      });
+        username: userProfile.fullName || user.email?.split('@')[0] || 'Anonymous',
+        createdAt: new Date().toISOString(), // Ensure correct timestamp format
+        updatedAt: new Date().toISOString(),
+      };
 
-      // Get the newly created ticket
+      console.log("Submitting ticket:", ticketData);
+
+      const ticketId = await supportService.createTicket(ticketData);
+
+      console.log("Ticket created with ID:", ticketId);
+
       const newTicket = await supportService.getTicketById(ticketId);
       if (newTicket) {
         setTickets(prevTickets => [newTicket, ...prevTickets]);
       }
 
-      // Reset form and show success message
       setFormData({ category: '', subject: '', message: '' });
       setSuccess(true);
     } catch (err) {

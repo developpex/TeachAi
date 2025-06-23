@@ -11,7 +11,8 @@ export const newsletterTool: ToolConfig = {
         SystemMessagePromptTemplate.fromTemplate(
             `You are an expert content writer and newsletter editor.
             Your task is to generate a well-structured and engaging newsletter based on the provided details.
-            Do not include any self-introductions, disclaimers, or additional commentary.
+            THIS IS IMPORTANT: Do not include any self-introductions, disclaimers, or additional commentary.
+            
             Only output the newsletter.`
         ),
         HumanMessagePromptTemplate.fromTemplate('{history}\n{input}'),

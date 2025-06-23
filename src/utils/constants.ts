@@ -43,7 +43,7 @@ export const PRICING_TIERS = [
   },
   {
     name: 'Enterprise',
-    price: '1000',
+    price: '100',
     description: 'Complete solution for schools and institutions',
     features: [
       'All Plus features',

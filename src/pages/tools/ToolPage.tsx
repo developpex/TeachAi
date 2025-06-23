@@ -173,31 +173,43 @@ export function ToolPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!followUpPrompt.trim() || generating) return;
+    if (generating) return;
+
+    // Store the current prompt and then clear it
+    const promptToSubmit = followUpPrompt;
+    setFollowUpPrompt('');
+
+    if (!promptToSubmit.trim()) return;
 
     try {
       setGenerating(true);
 
-      // Add user message
+      // Add user message using the prompt that was just submitted
       const userMessageId = Date.now().toString();
-      setMessages(prev => [...prev, {
-        id: userMessageId,
-        type: 'user',
-        content: followUpPrompt
-      }]);
+      setMessages(prev => [
+        ...prev,
+        {
+          id: userMessageId,
+          type: 'user',
+          content: promptToSubmit
+        }
+      ]);
 
       // Add loading message
       const aiMessageId = (Date.now() + 1).toString();
-      setMessages(prev => [...prev, {
-        id: aiMessageId,
-        type: 'assistant',
-        content: '',
-        isLoading: true
-      }]);
+      setMessages(prev => [
+        ...prev,
+        {
+          id: aiMessageId,
+          type: 'assistant',
+          content: '',
+          isLoading: true
+        }
+      ]);
 
-      // Add metadata to request
+      // Prepare request data with the promptToSubmit
       const requestData = {
-        prompt: followUpPrompt,
+        prompt: promptToSubmit,
         metadata: {
           toolId: currentTool!.id,
           toolNavigation: currentTool!.navigation,
@@ -207,11 +219,8 @@ export function ToolPage() {
         }
       };
 
-      console.log(schoolId);
-
-      // Get response stream
+      // Get response stream from the API
       const stream = await apiService.generateToolResponse(currentTool!.navigation, requestData);
-
       if (!stream) {
         throw new Error('No response stream received');
       }
@@ -219,7 +228,6 @@ export function ToolPage() {
       // Read the stream
       const reader = stream.getReader();
       const decoder = new TextDecoder();
-      setFollowUpPrompt('');
 
       while (true) {
         const { done, value } = await reader.read();
@@ -237,16 +245,20 @@ export function ToolPage() {
     } catch (error) {
       console.error('Error with follow-up:', error);
       // Show error message in the chat
-      setMessages(prev => [...prev.slice(0, -1), {
-        id: Date.now().toString(),
-        type: 'assistant',
-        content: 'Sorry, I encountered an error while processing your request. Please try again.',
-        isError: true
-      }]);
+      setMessages(prev => [
+        ...prev.slice(0, -1),
+        {
+          id: Date.now().toString(),
+          type: 'assistant',
+          content: 'Sorry, I encountered an error while processing your request. Please try again.',
+          isError: true
+        }
+      ]);
     } finally {
       setGenerating(false);
     }
   };
+
 
   const handleReset = () => {
     setFormKey(prev => prev + 1);

@@ -5,7 +5,7 @@ export function SecuritySettings() {
   return (
     <div className="space-y-6">
       <SecurityAlerts />
-      <ActiveSessions />
+      {/*<ActiveSessions />*/}
     </div>
   );
 }

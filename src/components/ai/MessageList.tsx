@@ -1,7 +1,7 @@
 import { Message } from './Message';
 import type { ChatMessage } from '../../types';
 import { HistoryService } from '../../services/history';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface MessageListProps {
     messages: ChatMessage[];
@@ -28,6 +28,10 @@ export function MessageList({
     const [savedResponses, setSavedResponses] = useState<string[]>([]);
     const historyService = HistoryService.getInstance();
 
+    // Auto-scroll related states and ref
+    const listRef = useRef<HTMLDivElement>(null);
+    const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+
     useEffect(() => {
         let mounted = true;
 
@@ -47,7 +51,22 @@ export function MessageList({
         return () => {
             mounted = false;
         };
-    }, []);
+    }, [historyService]);
+
+    // Auto-scroll effect: scroll to bottom if auto-scroll is enabled
+    useEffect(() => {
+        if (listRef.current && isAutoScrollEnabled) {
+            listRef.current.scrollTop = listRef.current.scrollHeight;
+        }
+    }, [messages, isAutoScrollEnabled]);
+
+    // Handle manual scroll: disable auto-scroll if user scrolls away from the bottom
+    const handleScroll = () => {
+        if (!listRef.current) return;
+        const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+        const atBottom = scrollHeight - scrollTop <= clientHeight + 20;
+        setIsAutoScrollEnabled(atBottom);
+    };
 
     const handleFavorite = async (messageId: string) => {
         const message = messages.find(m => m.id === messageId);
@@ -79,7 +98,12 @@ export function MessageList({
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div
+            ref={listRef}
+            onScroll={handleScroll}
+            className="p-6 space-y-6 overflow-y-auto"
+            style={{ maxHeight: '100%' }} // ensure container can scroll
+        >
             {messages.map((message) => (
                 <Message
                     key={message.id}
